@@ -1,0 +1,47 @@
+body.page-header-fixed
+{
+	padding-top: 103px !important;
+}
+.btn:active, .btn:focus
+{
+	outline: none!important;
+}
+.about
+{
+	min-height: 300px;
+}
+#forgot-form
+{
+	padding-bottom: 20px;
+}
+.social-logins .btn
+{
+	width: 80%;
+	border-radius: 3px!important;
+	border-color: transparent;
+	margin-bottom: 20px;
+}
+.fb
+{
+	background: #3b5998;
+}
+.tw
+{
+	background: #55acee;
+}
+.gplus
+{
+	background: #cf4332;
+}
+.linkedin
+{
+	background: #1883bb;
+}
+.account-section
+{
+	border: 1px solid #e7e7e7;
+}
+div.content-form-page
+{
+	margin-right: 0px!important;
+}
