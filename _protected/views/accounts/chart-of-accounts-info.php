@@ -1,6 +1,8 @@
 <?php
 use app\models\Partnercodeuse;
 use yii\widgets\ActiveForm;
+use \app\models\OrgChart;
+use yii\grid\GridView;
 ?>
 <div class="page-content-wrapper">
     <!-- BEGIN CONTENT BODY -->
@@ -50,32 +52,35 @@ use yii\widgets\ActiveForm;
                         <?php ActiveForm::begin();?>
                         <br>
                         <hr class="divider">
-                        <a href="#" data-toggle="collapse" data-target="#product-form" class="text-warning"><i class="fa fa-plus"></i> New Account</a>
+                        <a href="#" data-toggle="collapse" data-target="#product-form" class="text-warning"><i class="fa fa-plus"></i> Add New Product</a>
                         <div id="product-form" class="collapse row">
                             <br>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="productCode">Product Code:</label>
-                                    <input type="text" class="form-control" name="productCode" id="productCode" required >
+                                    <label for="product-code">Product Code:</label>
+                                    <input type="text" class="form-control" name="productCode" id="product-code" required >
                                 </div>
+                                <span class="text-info" id="code-error"></span>
                                 <div class="form-group">
-                                    <label for="productName">Product Name:</label>
-                                    <input type="text" class="form-control" name="productName" id="productName" required>
+                                    <label for="product-name">Product Name:</label>
+                                    <input type="text" class="form-control" name="productName" id="product-name" required>
                                 </div>
+                                <span class="text-info" id="name-error"></span>
                                 <div class="form-group">
                                     <label for="vat">VAT:</label>
-                                    <select class="form-control" name="vatable"  id="vat" required>
-                                        <option value="vatable">16% VAT</option>
-                                        <option value="unvatable">VAT Excluded</option>
+                                    <select class="form-control" name="vat"  id="vat" required>
+                                        <?php if(!empty($taxes)): foreach($taxes as $key):?>
+                                            <option value="<?=$key->id?>"><?=$key->tax_rate_name?></option>
+                                        <?php endforeach; endif;?>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="buyingPrice">Buying Price:</label>
-                                    <input type="text" value="1" class="form-control" name="buyingPrice" id="buyingPrice" required>
+                                    <input type="text" value="1" class="form-control" name="buyingPricePerUnit" id="buying-price" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="sellingPrice">Selling Price:</label>
-                                    <input type="text"  class="form-control" name="sellingPrice" id="sellingPrice" required>
+                                    <input type="text"  class="form-control" name="sellingPricePerUnit" id="selling-price" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="packing">Packing Units:</label>
@@ -85,6 +90,15 @@ use yii\widgets\ActiveForm;
                                     <label for="reorderlevel">Reorder Level:</label><span class="text-warning" id="unitsToPack"></span>
                                     <input type="text" class="form-control"  name="reorderLevel" id="reorderLevel" required>
                                 </div>
+                                <div class="form-group">
+                                    <label for="supplier">Supplier:</label>
+                                    <select class="selectpicker form-control" data-live-search="true" name="supplierId"  id="supplier" required>
+                                        <option>---Select Supplier---</option>
+                                        <?php if(!empty($suppliers)): foreach($suppliers as $key):?>
+                                            <option value="<?=$key->supplierId?>"><?=$key->supplierName?></option>
+                                        <?php endforeach; endif;?>
+                                    </select>
+                                </div>
                                 <hr class="divider">
                                 <div class="form-group pull-right">
                                     <button type="submit" class="btn btn-success">Add</button>
@@ -93,68 +107,45 @@ use yii\widgets\ActiveForm;
                             <span class="clearfix"></span>
                         </div>
                         <hr class="divider">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                            <tr>
-                                <th>Base Account</th>
-                                <th>Level one</th>
-                                <th>Level two</th>
-                                <th>level Three</th>
-                                <th>Edit</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php if(!empty($chart)): foreach($chart as $key):?>
-                                    <tr>
-                                        <td><?=$key->level_one_id;?></td>
-                                        <td><?=$key->level_one_id;?></td>
-                                        <td><?=$key->level_two_id;?></td>
-                                        <td><?=$key->level_three;?></td>
-                                        <td><a data-toggle="modal" href="#modal-<?=$key->id;?>" href="#"><button class="btn btn-success">Edit</button></a></td>
-                                    </tr>
-                                    <div class="modal fade" id="modal-<?=$key->id;?>">
-                                        <div class="modal-dialog modal-lger">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                                                    <h4 class="modal-title"><b><?=$key->level_three;?></b></h4>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div role="tabpanel">
-                                                        <!-- Nav tabs -->
-                                                        <ul class="nav nav-tabs" role="tablist">
-                                                            <li role="presentation" class="active">
-                                                                <a href="#tab-30" aria-controls="tab" role="tab" data-toggle="tab">Product Summary</a>
-                                                            </li>
-                                                            <li role="presentation">
-                                                                <a href="#tab-31" aria-controls="tab" role="tab" data-toggle="tab">Product Analysis</a>
-                                                            </li>
-                                                        </ul>
-                                                        <!-- Tab panes -->
-                                                        <div class="tab-content">
-                                                            <div role="tabpanel" class="tab-pane active" id="tab-30">
-                                                                <div class="col-md-8 col-md-offset-0">
-
-                                                                </div>
-                                                                <span class="clearfix"></span>
-                                                            </div>
-                                                            <div role="tabpanel" class="tab-pane" id="tab-31">
-                                                                <div class="col-md-8 col-md-offset-0">
-
-                                                                </div>
-                                                                <span class="clearfix"></span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                            <?php endforeach; endif;?>
-                            </tbody>
-                        </table>
-                        <hr class="divider">
                         <?php ActiveForm::end();?>
+                        <?php
+                        $searchModel = new OrgChart();
+                        $dataProvider = $searchModel->search(Yii::$app->request->get(),"all");
+
+                        echo GridView::widget([
+                            'dataProvider' => $dataProvider,
+                            'filterModel' => $searchModel,
+
+                            'columns' => [
+                                ['class' => 'yii\grid\SerialColumn'],
+
+                                [
+                                    'attribute' => 'Main Account',
+                                    'value' => 'account_base.account_base_name',
+                                ],
+                                [
+                                    "attribute" => "Level One",
+                                    'value' => 'level_one.name',
+                                ],
+                                [
+                                    'attribute' => 'Level Two',
+                                    'value' => 'level_two.level_name',
+                                ],
+                                [
+                                    'attribute' => 'Level Three',
+                                    'value' => 'level_three',
+                                ],
+
+                                [ 'class' => 'yii\grid\ActionColumn',
+                                    'template' => '{view} {update}',
+                                    'buttons' =>
+                                        [
+
+                                        ]
+                                ]
+                            ]
+                        ]);
+                        ?>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="tab3">
                         <?php ActiveForm::begin();?>

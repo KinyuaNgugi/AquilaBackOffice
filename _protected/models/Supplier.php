@@ -49,4 +49,8 @@ class Supplier extends \yii\db\ActiveRecord
             'methodOfPayment' => 'Method Of Payment',
         ];
     }
+    public function getInvoice()
+    {
+        return $this->hasMany(Expense::className(), ['supplier_id' => 'supplierId']);
+    }
 }

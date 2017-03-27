@@ -9,7 +9,7 @@
     <?php require_once('expenses-sidebar.php');?>
     <!-- END SIDEBAR -->
     <!-- BEGIN CONTENT -->
-    <?php require('invoice-info.php');?>
+    <?php require('invoice-form.php');?>
     <!-- END CONTENT -->
       <!-- BEGIN QUICK SIDEBAR -->
     <?php require_once($_SERVER['DOCUMENT_ROOT'].'/aquila/_protected/views/accounts/quick-sidebar.php');?>

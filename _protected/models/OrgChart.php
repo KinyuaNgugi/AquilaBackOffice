@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\data\ActiveDataProvider;
 
 /**
  * This is the model class for table "org_chart".
@@ -57,5 +58,52 @@ class OrgChart extends \yii\db\ActiveRecord
             'currency' => 'Currency',
             'type' => 'Type',
         ];
+    }
+
+    public function getAccount_base()
+    {
+        return $this->hasOne(AccountBase::className(), ['id' => 'level_one_id']);
+    }
+
+    public function getLevel_one()
+    {
+        return $this->hasOne(LevelOne::className(), ['id' => 'level_one_id']);
+    }
+
+    public function getLevel_two()
+    {
+        return $this->hasOne(LevelTwo::className(), ['id' => 'level_two_id']);
+    }
+
+    public function search($params,$cat)
+    {
+        if ($cat==='all')
+            $query = OrgChart::find()
+                ->with('account_base')
+                ->with('level_one')
+                ->with('level_two');
+
+        if ($cat==='approved')
+            $query = Expense::find()->with('supplier')->where(array('approved' => 1));
+
+        if ($cat==='void')
+            $query = Expense::find()->with('supplier')->where(array('approved' => 3));
+
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        // load the search form data and validate
+        if (!($this->load($params) && $this->validate()))
+        {
+            return $dataProvider;
+        }
+
+        // adjust the query by adding the filters
+        $query->andFilterWhere(['po_number' => $this->po_number]);
+        $query->andFilterWhere(['like', 'supplier', $this->supplier_id]);
+
+        return $dataProvider;
     }
 }

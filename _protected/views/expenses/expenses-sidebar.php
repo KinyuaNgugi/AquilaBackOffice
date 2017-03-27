@@ -43,7 +43,7 @@
             <li id="start-page" class="nav-item start">
                 <a href="<?=Yii::$app->homeUrl;?>expenses/index" class="nav-link nav-toggle">
                     <i class="icon-home"></i>
-                    <span class="title">Purchase Orders</span>
+                    <span class="title">Invoices</span>
                     <span class="selected"></span>
                     <span class="arrow open"></span>
                 </a>

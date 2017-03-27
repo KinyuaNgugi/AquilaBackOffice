@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\data\ActiveDataProvider;
 
 /**
  * This is the model class for table "expense".
@@ -61,5 +62,38 @@ class Expense extends \yii\db\ActiveRecord
             'approved' => 'Approved',
             'rate' => 'Rate',
         ];
+    }
+    public function getSupplier()
+    {
+        return $this->hasOne(Supplier::className(), ['supplierId' => 'supplier_id']);
+    }
+
+    public function search($params,$cat)
+    {
+        if ($cat==='all')
+            $query = Expense::find()->with('supplier')->where(array('approved' => 0));
+
+        if ($cat==='approved')
+            $query = Expense::find()->with('supplier')->where(array('approved' => 1));
+
+        if ($cat==='void')
+            $query = Expense::find()->with('supplier')->where(array('approved' => 3));
+        
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        // load the search form data and validate
+        if (!($this->load($params) && $this->validate()))
+        {
+            return $dataProvider;
+        }
+
+        // adjust the query by adding the filters
+        $query->andFilterWhere(['po_number' => $this->po_number]);
+        $query->andFilterWhere(['like', 'supplier', $this->supplier_id]);
+
+        return $dataProvider;
     }
 }
