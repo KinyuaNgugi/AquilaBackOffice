@@ -27,6 +27,7 @@ use yii\grid\ActionColumn;
         </div>
         <!-- END PAGE BAR -->
         <!-- BEGIN DASHBOARD STATS 1-->
+        <?php require_once('feedback.php');?>
         <div class="">
             <div class="partner-tabs" role="tabpanel">
                 <!-- Nav tabs -->
@@ -36,6 +37,9 @@ use yii\grid\ActionColumn;
                     </li>
                     <li role="presentation">
                         <a href="#tab3" aria-controls="home" role="tab" data-toggle="tab">Approved Invoices<span class="badge badge-danger"></span></a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#tab4" aria-controls="home" role="tab" data-toggle="tab">Paid Invoices<span class="badge badge-danger"></span></a>
                     </li>
                     <li role="presentation">
                         <a href="#tab2" aria-controls="home" role="tab" data-toggle="tab">Voided Invoices<span class="badge badge-danger"></span></a>
@@ -69,7 +73,7 @@ use yii\grid\ActionColumn;
                                 ],
                                 [
                                     'attribute' => 'Invoice Amount',
-                                    'value' => 'supplier_id',
+                                    'value' => 'total',
                                 ],
                                 [ 'class' => 'yii\grid\ActionColumn',
                                     'template' => '{view}',
@@ -87,6 +91,41 @@ use yii\grid\ActionColumn;
                         <?php
                         $searchModel = new Expense();
                         $dataProvider = $searchModel->search(Yii::$app->request->get(),"approved");
+                        echo GridView::widget([
+                            'dataProvider' => $dataProvider,
+                            'filterModel' => $searchModel,
+
+                            'columns' => [
+                                ['class' => 'yii\grid\SerialColumn'],
+
+                                [
+                                    'attribute' => 'Invoice Number',
+                                    'value' => 'po_number',
+                                ],
+                                [
+                                    "attribute" => "Supplier",
+                                    'value' => 'supplier.supplierName',
+                                ],
+                                [
+                                    'attribute' => 'Invoice Amount',
+                                    'value' => 'supplier_id',
+                                ],
+                                [ 'class' => 'yii\grid\ActionColumn',
+                                    'template' => '{view}',
+                                    'buttons' =>
+                                        [
+
+                                        ]
+                                ]
+                            ]
+                        ]);
+                        ?>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="tab4">
+                        <hr class="divider">
+                        <?php
+                        $searchModel = new Expense();
+                        $dataProvider = $searchModel->search(Yii::$app->request->get(),"paid");
                         echo GridView::widget([
                             'dataProvider' => $dataProvider,
                             'filterModel' => $searchModel,

@@ -1,5 +1,4 @@
 <?php
-use app\models\Partnercodeuse;
 use yii\widgets\ActiveForm;
 use yii\grid\GridView;
 use app\models\Stock;
@@ -27,6 +26,7 @@ use yii\grid\ActionColumn;
         </div>
         <!-- END PAGE BAR -->
         <!-- BEGIN DASHBOARD STATS 1-->
+        <?php require_once('feedback.php');?>
         <div class="">
             <div class="partner-tabs" role="tabpanel">
                 <!-- Nav tabs -->
@@ -34,7 +34,7 @@ use yii\grid\ActionColumn;
                     <li role="presentation" class="active">
                         <a href="#tab1" aria-controls="home" role="tab" data-toggle="tab">All Products<span class="badge badge-danger"></span></a>
                     </li>
-                    <li role="presentation">
+                    <!--<li role="presentation">
                         <a href="#tab3" aria-controls="home" role="tab" data-toggle="tab">Products Below Reorder Level<span class="badge badge-danger"></span></a>
                     </li>
                     <li role="presentation">
@@ -42,7 +42,7 @@ use yii\grid\ActionColumn;
                     </li>
                     <li role="presentation">
                         <a href="#tab4" aria-controls="tab" role="tab" data-toggle="tab">VAT Exclusive Products <span class="badge badge-danger"></span></a>
-                    </li>
+                    </li>-->
                 </ul>
 
                 <!-- Tab panes -->
@@ -146,11 +146,11 @@ use yii\grid\ActionColumn;
                         ]);
                         ?>
                     </div>
-                    <div role="tabpanel" class="tab-pane" id="tab3">
-                        <?php ActiveForm::begin();?>
+                    <!--<div role="tabpanel" class="tab-pane" id="tab3">
+                        <?php /*ActiveForm::begin();*/?>
                         <br>
                         <?php
-                        $searchModel = new Stock();
+/*                        $searchModel = new Stock();
                         $dataProvider = $searchModel->search(Yii::$app->request->get(),"reorder");
 
                         echo GridView::widget([
@@ -186,14 +186,14 @@ use yii\grid\ActionColumn;
                                 ]
                             ]
                         ]);
-                        ?>
+                        */?>
                         <hr class="divider">
-                        <?php ActiveForm::end();?>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="tab2">
+                        <?php /*ActiveForm::end();*/?>
+                    </div>-->
+                    <!--<div role="tabpanel" class="tab-pane" id="tab2">
                         <br>
                         <?php
-                        $searchModel = new Stock();
+/*                        $searchModel = new Stock();
                         $dataProvider = $searchModel->search(Yii::$app->request->get(),"vat");
 
                         echo GridView::widget([
@@ -229,12 +229,12 @@ use yii\grid\ActionColumn;
                                 ]
                             ]
                         ]);
-                        ?>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="tab4">
+                        */?>
+                    </div>-->
+                    <!--<div role="tabpanel" class="tab-pane" id="tab4">
                         <br>
                         <?php
-                        $searchModel = new Stock();
+/*                        $searchModel = new Stock();
                         $dataProvider = $searchModel->search(Yii::$app->request->get(),"exempt");
 
                         echo GridView::widget([
@@ -270,8 +270,8 @@ use yii\grid\ActionColumn;
                                 ]
                             ]
                         ]);
-                        ?>
-                    </div>
+                        */?>
+                    </div>-->
                 </div>
             </div>
         </div>

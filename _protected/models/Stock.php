@@ -63,20 +63,32 @@ class Stock extends \yii\db\ActiveRecord
     }
     public function search($params,$cat)
     {
-        if ($cat==='all')
+        if ($cat == 'all')
             $query = Stock::find();
 
-        if ($cat==='vat')
+        if ($cat == 'vat')
             $query = Stock::find()->where(array('vat' => 1));
         
-        if ($cat==='exempt')
-            $query = Stock::find()->where(array('vat' => 12));
-        if ($cat==='reorder')
+        if ($cat == 'exempt')
+            $query = Stock::find()->where(array('vat' => 2));
+
+        if ($cat == 'reorder')
             $query = Stock::findBySql("Select * from stock WHERE unitsInStock<reorderLevel");
-        
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-        ]);
+
+        if ($cat == 'all')
+        {
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false,
+            ]);
+        }
+        else
+        {
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query
+            ]);
+        }
+
 
         // load the search form data and validate
         if (!($this->load($params) && $this->validate())) 
@@ -85,7 +97,6 @@ class Stock extends \yii\db\ActiveRecord
         }
 
         // adjust the query by adding the filters
-        $query->andFilterWhere(['stockId' => $this->stockId]);
         $query->andFilterWhere(['like', 'productCode', $this->productCode])
             ->andFilterWhere(['like', 'productName', $this->productName]);
 

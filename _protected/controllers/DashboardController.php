@@ -1,6 +1,9 @@
 <?php
 namespace app\controllers;
+use app\models\Bankbranch;
+use app\models\Banks;
 use app\models\CountryTaxRates;
+use app\models\OrgBanks;
 use app\models\OrgChart;
 use app\models\Stock;
 use app\models\Supplier;
@@ -73,18 +76,26 @@ class DashboardController extends \yii\web\Controller
             $model->reorderLevel=$data['reorderLevel'];
             $model->vat=$data['vat'];
 
-            $chart_model=new OrgChart();
-            $chart_model->main_acc_id=4;
-            $chart_model->level_one_id=6;
-            $chart_model->level_two_id=10;
-            $chart_model->level_three=strtoupper($data['productName']);
-            $chart_model->number="4610".count(Stock::find()->all())+1;
-            $chart_model->org_id=2;
             
-            if ($model->save() && $chart_model->save())
-                Yii::$app->session->setFlash('feedback' , ['type' => 'success','msg' => 'Product saved']);
+            if ($model->save())
+            {
+                $chart_model=new OrgChart();
+                $chart_model->main_acc_id=1;
+                $chart_model->level_one_id=2;
+                $chart_model->level_two_id=34;
+                $chart_model->level_three=strtoupper($data['productName']);
+                $chart_model->number=$model->stockId;
+                $chart_model->currency = 'KSH';
+                $chart_model->org_id=2;
+                if ($chart_model->save())
+                {
+                    Yii::$app->session->setFlash('feedback' , ['type' => 'success','msg' => 'Product saved']);
+                }
+            }
             else
-                Yii::$app->session->setFlash('feedback' , ['type' => 'danger','msg' => 'Product Not Saved']);
+            {
+                Yii::$app->session->setFlash('feedback', ['type' => 'danger', 'msg' => 'Product Not Saved']);
+            }
             return $this->redirect(['dashboard/products']);
         }
         else
@@ -97,6 +108,79 @@ class DashboardController extends \yii\web\Controller
                 'suppliers'=>$suppliers
             ]);
         }
+    }
+    public function actionBanks()
+    {
+        $this->layout = 'backend';
+
+        $bank_code = Yii::$app->request->get('bank_code');
+        $data=Yii::$app->request->post();
+        if ($bank_code)
+        {
+            $branches = Bankbranch::find()->where(array('bankCode'=>$bank_code))
+                ->orderBy(['name' => SORT_ASC])->all();
+            $result=array();
+            
+            //get bank id
+            $bank_id = Banks::find()->where(array('code'=>$bank_code))->one()->id;
+            
+            foreach ($branches as $branch)
+                array_push($result,array('id'=>$branch->id,'name'=>$branch->name,'bank_id'=>$bank_id));
+            echo json_encode($result);
+        }
+        //save bank
+        elseif (!empty($data))
+        {
+            $model=new OrgBanks();
+            $model->currency = 'KSH';
+            $model->bank_id = $data['bank'];
+            $model->branch_id = $data['branch'];
+            $model->account = $data['account'];
+
+            if ($model->save())
+            {
+                $chart_model=new OrgChart();
+                $chart_model->main_acc_id=1;
+                $chart_model->level_one_id=1;
+                $chart_model->level_two_id=1;
+                $bank_name = Banks::findOne($data['bank'])->bank;
+                $branch_name = Bankbranch::findOne($data['branch'])->name;
+                $chart_model->level_three=strtoupper($bank_name.'|'.$branch_name.'|'.$data['account']);
+                $chart_model->number=$model->id;
+                $chart_model->currency = 'KSH';
+                $chart_model->org_id=2;
+                if ($chart_model->save())
+                {
+                    Yii::$app->session->setFlash('feedback' , ['type' => 'success','msg' => 'Bank saved']);
+                }
+            }
+            else
+            {
+                Yii::$app->session->setFlash('feedback' , ['type' => 'danger','msg' => 'Bank Not Saved']);
+            }
+            return $this->redirect(['dashboard/banks']);
+        }
+        else
+        {
+            $banks = Banks::find()->all();
+
+            return $this->render('banks', [
+                'banks'=>$banks,
+            ]);
+        }
+    }
+    public function actionChart()
+    {
+        $this->layout = 'backend';
+        $chart=OrgChart::find()->all();
+        return $this->render('chart-of-accounts', [
+            'chart' => $chart
+        ]);
+    }
+    public function actionPostings()
+    {
+        $this->layout = 'backend';
+        return $this->render('postings');
     }
     public function actionWelcome()
     {

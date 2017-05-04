@@ -21,6 +21,7 @@ use yii\data\ActiveDataProvider;
  */
 class Expense extends \yii\db\ActiveRecord
 {
+    public $total;
     /**
      * @inheritdoc
      */
@@ -67,18 +68,32 @@ class Expense extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Supplier::className(), ['supplierId' => 'supplier_id']);
     }
+    public function getExpense_items()
+    {
+        return $this->hasMany(ExpenseItems::className(), ['po_id' => 'id']);
+    }
 
     public function search($params,$cat)
     {
-        if ($cat==='all')
-            $query = Expense::find()->with('supplier')->where(array('approved' => 0));
+        if ($cat == 'all')
+            $query = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id
+                        from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
+                        WHERE approved=0 GROUP BY expense.id');
 
         if ($cat==='approved')
-            $query = Expense::find()->with('supplier')->where(array('approved' => 1));
+            $query = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id
+                        from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
+                        WHERE approved=1 GROUP BY expense.id');
 
         if ($cat==='void')
-            $query = Expense::find()->with('supplier')->where(array('approved' => 3));
-        
+            $query = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id
+                        from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
+                        WHERE approved=2 GROUP BY expense.id');
+
+        if ($cat==='paid')
+            $query = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id
+                        from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
+                        WHERE approved=3 GROUP BY expense.id');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

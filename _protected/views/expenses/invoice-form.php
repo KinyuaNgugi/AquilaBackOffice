@@ -24,12 +24,13 @@ use yii\widgets\ActiveForm;
                     <i class="fa fa-circle"></i>
                 </li>
                 <li>
-                    <span>New Purchase Order</span>
+                    <span>New invoice</span>
                 </li>
             </ul>
         </div>
         <!-- END PAGE BAR -->
         <!-- BEGIN DASHBOARD STATS 1-->
+        <?php require_once('feedback.php');?>
         <div class="">
             <div class="partner-tabs" role="tabpanel">
                 <!-- Tab panes -->
@@ -38,7 +39,9 @@ use yii\widgets\ActiveForm;
                         <?php ActiveForm::begin();?>
                         <div class="row">
                             <div class="col-md-6">
-                                <select class="selectpicker form-control" data-live-search="true" name="supplier"  id="supplier" required>
+                                <select class="selectpicker form-control" data-live-search="true"
+                                        <?php if (isset($invoice) && $invoice->approved != 0 || $pk != 'new' ):?>disabled<?php endif;?>
+                                        name="supplier"  id="supplier" required>
                                     <?php if(empty($supplier)):?>
                                         <option>---Select Supplier---</option>
                                     <?php endif;?>
@@ -54,31 +57,30 @@ use yii\widgets\ActiveForm;
                                     <?php endforeach; endif;?>
                                 </select>
                                 <label for="date">Invoice Number*</label>
-                                <input type="text" name="inv-number" value="<?=$inv?>" class="form-control">
+                                <input type="text" name="inv-number" value="<?=$inv?>" class="form-control"
+                                       <?php if (isset($invoice) && $invoice->approved != 0 || $pk != 'new' ):?>readonly<?php endif;?>>
                             </div>
                             <div class="col-md-3 ">
                                 <div class="form-group">
-                                    <label for="date">Date*</label>
+                                    <label for="date">Date<sup>*</sup></label>
                                     <input type="date" name="date" class="form-control" required
                                         <?php if(!empty($invoice)):?>
                                             value="<?=$invoice->date?>"
-                                        <?php endif;?>>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3 col-md-offset-6">
-                                <div class="form-group">
-                                    <label for="date">Date Due*</label>
+                                        <?php endif;?>
+                                           <?php if (isset($invoice) && $invoice->approved != 0 || $pk != 'new' ):?>readonly<?php endif;?>>
+
+                                    <label for="date">Date Due</label>
                                     <input type="date" name="date-due" class="form-control" required
                                         <?php if(!empty($invoice)):?>
                                             value="<?=$invoice->date_due?>"
-                                        <?php endif;?>>
+                                        <?php endif;?>
+                                           <?php if (isset($invoice) && $invoice->approved != 0 || $pk != 'new' ):?>readonly<?php endif;?>>
                                 </div>
                             </div>
                         </div>
 
                         <hr class="divider">
+                        <?php if (isset($invoice) && $invoice->approved == 0 || $pk == 'new' ):?>
                         <div class="row">
                             <div class="col-md-3 ">
                                 <table class="tablee" id="prods">
@@ -115,6 +117,7 @@ use yii\widgets\ActiveForm;
                                 </table>
                             </div>
                         </div>
+                        <?php endif;?>
                         <div class="row">
                             <input type="hidden" id="pk" value="<?=$pk?>">
                             <hr class="divider">
@@ -173,16 +176,58 @@ use yii\widgets\ActiveForm;
                         <hr class="divider">
                         <div class="row">
                             <center>
-                                <?php if($pk==='new' || !empty($supplier_to_exclude)):?>
+                                <?php if($pk == 'new' || !empty($supplier_to_exclude) && $invoice->approved  != 1 && $invoice->approved  != 3):?>
                                     <button type="submit" class="btn btn-success">Save</button></a>
                                 <?php endif;?>
-                                <?php if($pk!=='new'):?>
-                                    <button class="btn btn-info">Approve</button></a>
-                                    <button class="btn btn-danger">Void</button></a>
+                                <?php if (isset($invoice) && $invoice->approved !=3):?>
+                                    <?php if($pk !== 'new' && $invoice->approved  != 1):?>
+                                        <button onclick="window.location='<?=Yii::$app->homeUrl;?>expenses/approve?id=<?=$pk;?>'"
+                                                type="button" class="btn btn-info">Approve</button></a>
+                                        <button onclick="window.location='<?=Yii::$app->homeUrl;?>expenses/void?id=<?=$pk;?>'"
+                                                type="button" class="btn btn-danger">Void</button></a>
+                                    <?php endif;?>
+                                    <?php if($invoice->approved  == 1):?>
+                                        <a data-toggle="modal" href="#modal-pay"><button class="btn btn-success">Mark As Payment Received</button></a
+                                    <?php endif;?>
                                 <?php endif;?>
                             </center>
                         </div>
                         <?php ActiveForm::end();?>
+                    </div>
+                    <div class="modal fade" id="modal-pay">
+                        <div class="modal-dialog modal-lger">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                                    <h4 class="modal-title"><b>Payment for <?=(isset($invoice)) ? $invoice->po_number: ''?></b></h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="supplier">Amount<sup>*</sup></label>
+                                        <input class="form-control" type="text" readonly value="<?=$grand_total?>">
+                                    </div>
+                                    <div class="form-group">
+                                        <label ><sup>Account to withdraw from*</sup></label>
+                                        <select class="selectpicker form-control" data-live-search="true"  id="account" required>
+                                            <option>---Select Account---</option>
+                                            <?php
+                                            $banks = \app\models\OrgChart::find()->where(array('main_acc_id'=>1,
+                                                'level_one_id'=>1,'level_two_id'=>1))->all();
+                                            if(!empty($banks)): foreach($banks as $key):?>
+                                                <option value="<?=$key->id?>"><?=$key->level_three?></option>
+                                            <?php endforeach; endif;?>
+                                        </select>
+                                    </div>
+                                    <hr class="divider">
+                                    <div class="btn-group" role="group" aria-label="...">
+                                        <input id="home_url" type="hidden"
+                                               <?php if (isset($invoice)):?>value="<?=Yii::$app->homeUrl.'expenses/pay?id='.$invoice->id.'&amount='.$grand_total;?>"
+                                        <?php endif;?>>
+                                        <button onclick="submitForPayment()" type="button" class="btn green">Make Payment</button>
+                                    </input>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -367,4 +412,8 @@ use yii\widgets\ActiveForm;
             }
         });
     });
+
+    function submitForPayment() {
+        window.location=$('#home_url').val()+'&account='+$('#account').val();
+    }
 </script>

@@ -69,7 +69,7 @@
                     <span class="pull-right"><i class="fa fa-angle-right"></i></span>
                 </a>
             </li>        
-            </ul>
+        </ul>
         <!-- END SIDEBAR MENU -->
         <!-- END SIDEBAR MENU -->
     </div>

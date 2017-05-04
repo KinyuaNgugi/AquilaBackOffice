@@ -62,7 +62,7 @@ class OrgChart extends \yii\db\ActiveRecord
 
     public function getAccount_base()
     {
-        return $this->hasOne(AccountBase::className(), ['id' => 'level_one_id']);
+        return $this->hasOne(AccountBase::className(), ['id' => 'main_acc_id']);
     }
 
     public function getLevel_one()
@@ -82,6 +82,27 @@ class OrgChart extends \yii\db\ActiveRecord
                 ->with('account_base')
                 ->with('level_one')
                 ->with('level_two');
+
+        if ($cat=='banks')
+            $query = OrgChart::find()
+                ->with('account_base')
+                ->with('level_one')
+                ->with('level_two')
+                ->where(['main_acc_id'=>1,'level_one_id'=>1,'level_two_id'=>1]);
+        
+        if ($cat==='inventory')
+            $query = OrgChart::find()
+                ->with('account_base')
+                ->with('level_one')
+                ->with('level_two')
+                ->where(['main_acc_id'=>1,'level_one_id'=>2,'level_two_id'=>34]);
+
+        if ($cat==='creditors')
+            $query = OrgChart::find()
+                ->with('account_base')
+                ->with('level_one')
+                ->with('level_two')
+                ->where(['main_acc_id'=>2,'level_one_id'=>4,'level_two_id'=>27]);
 
         if ($cat==='approved')
             $query = Expense::find()->with('supplier')->where(array('approved' => 1));
