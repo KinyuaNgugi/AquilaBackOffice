@@ -19,7 +19,7 @@ AppAsset::register($this);
     </head>
     <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
         <?php $this->beginBody() ?>
-        <div class="page-wrapper"> 
+        <div class="page-wrapper">
             <?= $content ?>
         </div>
         <?php $this->endBody() ?>

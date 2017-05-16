@@ -22,6 +22,7 @@ use yii\data\ActiveDataProvider;
 class Expense extends \yii\db\ActiveRecord
 {
     public $total;
+    public $tax;
     /**
      * @inheritdoc
      */
@@ -80,23 +81,27 @@ class Expense extends \yii\db\ActiveRecord
                         from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
                         WHERE approved=0 GROUP BY expense.id');
 
-        if ($cat==='approved')
+        if ($cat =='approved')
             $query = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id
                         from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
                         WHERE approved=1 GROUP BY expense.id');
 
-        if ($cat==='void')
+        if ($cat == 'void')
             $query = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id
                         from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
                         WHERE approved=2 GROUP BY expense.id');
 
-        if ($cat==='paid')
-            $query = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id
+        if ($cat == 'paid')
+            $query = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id,
+                        sum(t_tax) AS \'tax\',date
                         from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
                         WHERE approved=3 GROUP BY expense.id');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+                'pageSize' => 20,
+            ],
         ]);
 
         // load the search form data and validate
@@ -110,5 +115,33 @@ class Expense extends \yii\db\ActiveRecord
         $query->andFilterWhere(['like', 'supplier', $this->supplier_id]);
 
         return $dataProvider;
+    }
+    public function getTotalPaid()
+    {
+        $total = 0;
+        $expenses = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id,
+                        sum(t_tax) AS \'tax\',date
+                        from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
+                        WHERE approved=3 GROUP BY expense.id')->all();
+        
+        foreach ($expenses as $key)
+        {
+            $total += $key->total;
+        }
+        return $total;
+    }
+    public function getTotalPaidTax()
+    {
+        $tax = 0;
+        $expenses = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id,
+                        sum(t_tax) AS \'tax\',date
+                        from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
+                        WHERE approved=3 GROUP BY expense.id')->all();
+
+        foreach ($expenses as $key)
+        {
+            $tax += $key->tax;
+        }
+        return $tax;
     }
 }

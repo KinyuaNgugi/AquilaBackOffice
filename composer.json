@@ -14,7 +14,13 @@
         "yiisoft/yii2": "*",
         "yiisoft/yii2-bootstrap": "*",
         "yiisoft/yii2-swiftmailer": "*",
-        "kartik-v/yii2-password": "@dev"
+        "kartik-v/yii2-password": "@dev",
+        "kartik-v/yii2-grid": "@dev",
+        "kartik-v/yii2-editable": "*",
+        "kartik-v/yii2-dynagrid": "@dev",
+        "kartik-v/yii2-widget-colorinput": "*",
+        "2amigos/yii2-highcharts-widget": "~1.0",
+        "miloschuman/yii2-highcharts-widget": "dev-master"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

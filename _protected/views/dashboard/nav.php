@@ -42,7 +42,7 @@
                         <li class="divider"> </li>
                         <li>
                             <a href="<?=Yii::$app->homeUrl;?>dashboard/logout">
-                                <i class="icon-key"></i> Log Out 
+                                <i class="icon-key"></i> Log Out
                             </a>
                         </li>
                     </ul>

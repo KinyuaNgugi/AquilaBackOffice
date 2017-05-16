@@ -119,7 +119,7 @@ use yii\grid\ActionColumn;
     $('#bank').change(function () {
         getBankBranches($('#bank').val());
     });
-    
+
     function getBankBranches(bank_code)
     {
         $.ajax({

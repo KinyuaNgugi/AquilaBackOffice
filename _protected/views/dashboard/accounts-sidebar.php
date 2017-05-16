@@ -78,10 +78,59 @@
             <li id="postings-page" class="nav-item  ">
                 <a href="<?=Yii::$app->homeUrl;?>dashboard/postings" class="nav-link nav-toggle">
                     <i class="fa fa-cogs"></i>
-                    <span class="title">Accounts Posting</span>
+                    <span class="title">Account Statements</span>
                     <span class="pull-right"><i class="fa fa-angle-right"></i></span>
                 </a>
-            </li>        
+            </li>
+            <li id="financial-statements-page" class="nav-item  ">
+                <a href="<?=Yii::$app->homeUrl;?>dashboard/financialstatements" class="nav-link nav-toggle">
+                    <i class="fa fa-cogs"></i>
+                    <span class="title">Financial Statements</span>
+                    <span class="pull-right"><i class="fa fa-angle-right"></i></span>
+                </a>
+            </li>
+            <li id="revenue-reports-page" class="nav-item  ">
+                <a href="<?=Yii::$app->homeUrl;?>dashboard/revenuereports" class="nav-link nav-toggle">
+                    <i class="fa fa-cogs"></i>
+                    <span class="title">Revenue Reports</span>
+                    <span class="pull-right"><i class="fa fa-angle-right"></i></span>
+                </a>
+            </li>
+            <li id="cost-reports-page" class="nav-item  ">
+                <a href="<?=Yii::$app->homeUrl;?>dashboard/costreports" class="nav-link nav-toggle">
+                    <i class="fa fa-cogs"></i>
+                    <span class="title">Cost Reports</span>
+                    <span class="pull-right"><i class="fa fa-angle-right"></i></span>
+                </a>
+            </li>
+            <li id="creditors-reports-page" class="nav-item  ">
+                <a href="<?=Yii::$app->homeUrl;?>dashboard/creditorreports" class="nav-link nav-toggle">
+                    <i class="fa fa-cogs"></i>
+                    <span class="title">Creditor Reports</span>
+                    <span class="pull-right"><i class="fa fa-angle-right"></i></span>
+                </a>
+            </li>
+            <li id="debtors-reports-page" class="nav-item  ">
+                <a href="<?=Yii::$app->homeUrl;?>dashboard/debtorreports" class="nav-link nav-toggle">
+                    <i class="fa fa-cogs"></i>
+                    <span class="title">Debtor Reports</span>
+                    <span class="pull-right"><i class="fa fa-angle-right"></i></span>
+                </a>
+            </li>
+            <li id="inventory-reports-page" class="nav-item  ">
+                <a href="<?=Yii::$app->homeUrl;?>dashboard/creditorreports" class="nav-link nav-toggle">
+                    <i class="fa fa-cogs"></i>
+                    <span class="title">Product Reports</span>
+                    <span class="pull-right"><i class="fa fa-angle-right"></i></span>
+                </a>
+            </li>
+            <li id="vat-reports-page" class="nav-item  ">
+                <a href="<?=Yii::$app->homeUrl;?>dashboard/vatreports" class="nav-link nav-toggle">
+                    <i class="fa fa-cogs"></i>
+                    <span class="title">VAT Reports</span>
+                    <span class="pull-right"><i class="fa fa-angle-right"></i></span>
+                </a>
+            </li>
             </ul>
         <!-- END SIDEBAR MENU -->
         <!-- END SIDEBAR MENU -->

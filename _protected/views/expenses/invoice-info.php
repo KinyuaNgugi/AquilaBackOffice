@@ -108,7 +108,7 @@ use yii\grid\ActionColumn;
                                 ],
                                 [
                                     'attribute' => 'Invoice Amount',
-                                    'value' => 'supplier_id',
+                                    'value' => 'total',
                                 ],
                                 [ 'class' => 'yii\grid\ActionColumn',
                                     'template' => '{view}',
@@ -143,7 +143,7 @@ use yii\grid\ActionColumn;
                                 ],
                                 [
                                     'attribute' => 'Invoice Amount',
-                                    'value' => 'supplier_id',
+                                    'value' => 'total',
                                 ],
                                 [ 'class' => 'yii\grid\ActionColumn',
                                     'template' => '{view}',
@@ -178,7 +178,7 @@ use yii\grid\ActionColumn;
                                 ],
                                 [
                                     'attribute' => 'Invoice Amount',
-                                    'value' => 'supplier_id',
+                                    'value' => 'total',
                                 ],
                                 [ 'class' => 'yii\grid\ActionColumn',
                                     'template' => '{view}',

@@ -182,6 +182,36 @@ class DashboardController extends \yii\web\Controller
         $this->layout = 'backend';
         return $this->render('postings');
     }
+    public function actionFinancialstatements()
+    {
+        $this->layout = 'backend';
+        return $this->render('financial_statements');
+    }
+    public function actionRevenuereports()
+    {
+        $this->layout = 'backend';
+        return $this->render('revenue_reports');
+    }
+    public function actionCostreports()
+    {
+        $this->layout = 'backend';
+        return $this->render('cost_reports');
+    }
+    public function actionDebtorreports()
+    {
+        $this->layout = 'backend';
+        return $this->render('debtor_reports');
+    }
+    public function actionCreditorreports()
+    {
+        $this->layout = 'backend';
+        return $this->render('creditor_reports');
+    }
+    public function actionVatreports()
+    {
+        $this->layout = 'backend';
+        return $this->render('vat_reports');
+    }
     public function actionWelcome()
     {
     	$this->layout = 'backend';
