@@ -69,7 +69,7 @@ class PortalController extends Controller
             $data = Yii::$app->request->post();
             $password = sha1($data['password']);
             $email = $data['email'];
-            $user = User::find()->where(array('email' => $email,'password_hash' => $password))->one();
+            $user = User::find()->where(array('email' => $email,'password' => $password))->one();
             if($user)
             {
                 $this->actionCreatesession($user->id);

@@ -43,7 +43,6 @@
 <script src="<?=Yii::$app->homeUrl;?>themes/light/js/custom.js" type="text/javascript"></script>
 <script src="<?=Yii::$app->homeUrl;?>themes/light/js/map-locations.js" type="text/javascript"></script>
 <script src="<?=Yii::$app->homeUrl;?>themes/light/js/bootstrap-select.min.js" type="text/javascript"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0iuhfDb8oUf0fUSuUYy70GdZJDKb10dY&callback=initMap&libraries=places" ></script>
 
 <!-- BEGIN PAGE LEVEL SCRIPTS -->
 <!-- END PAGE LEVEL SCRIPTS -->

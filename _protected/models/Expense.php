@@ -74,8 +74,12 @@ class Expense extends \yii\db\ActiveRecord
         return $this->hasMany(ExpenseItems::className(), ['po_id' => 'id']);
     }
 
-    public function search($params,$cat)
+    public function search($params,$cat,$start_date=null,$end_date=null)
     {
+        $between_section = '';
+        if ($start_date != null && $end_date != null)
+            $between_section=" where (date between ' ". $start_date ."' and '". $end_date."')";
+
         if ($cat == 'all')
             $query = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id
                         from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
@@ -92,10 +96,10 @@ class Expense extends \yii\db\ActiveRecord
                         WHERE approved=2 GROUP BY expense.id');
 
         if ($cat == 'paid')
-            $query = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id,
-                        sum(t_tax) AS \'tax\',date
+            $query = Expense::findBySql("select expense.id,sum(total) as \"total\",po_number,supplier_id,
+                        sum(t_tax) AS \"tax\",date
                         from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
-                        WHERE approved=3 GROUP BY expense.id');
+                        $between_section AND approved=3 GROUP BY expense.id");
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -116,13 +120,16 @@ class Expense extends \yii\db\ActiveRecord
 
         return $dataProvider;
     }
-    public function getTotalPaid()
+    public function getTotalPaid($start_date=null,$end_date=null)
     {
+        $between_section = '';
+        if ($start_date != null && $end_date != null)
+            $between_section=" where (date between ' ". $start_date ."' and '". $end_date."')";
         $total = 0;
-        $expenses = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id,
-                        sum(t_tax) AS \'tax\',date
+        $expenses = Expense::findBySql("select expense.id,sum(total) as \"total\",po_number,supplier_id,
+                        sum(t_tax) AS \"tax\",date
                         from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
-                        WHERE approved=3 GROUP BY expense.id')->all();
+                        $between_section AND approved=3 GROUP BY expense.id")->all();
         
         foreach ($expenses as $key)
         {
@@ -130,13 +137,16 @@ class Expense extends \yii\db\ActiveRecord
         }
         return $total;
     }
-    public function getTotalPaidTax()
+    public function getTotalPaidTax($start_date=null,$end_date=null)
     {
+        $between_section = '';
+        if ($start_date != null && $end_date != null)
+            $between_section=" where (date between ' ". $start_date ."' and '". $end_date."')";
         $tax = 0;
-        $expenses = Expense::findBySql('select expense.id,sum(total) as \'total\',po_number,supplier_id,
-                        sum(t_tax) AS \'tax\',date
+        $expenses = Expense::findBySql("select expense.id,sum(total) as \"total\",po_number,supplier_id,
+                        sum(t_tax) AS \"tax\",date
                         from expense INNER JOIN expense_items ON expense.id=expense_items.po_id
-                        WHERE approved=3 GROUP BY expense.id')->all();
+                        $between_section AND approved=3 GROUP BY expense.id")->all();
 
         foreach ($expenses as $key)
         {

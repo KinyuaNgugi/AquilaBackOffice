@@ -96,14 +96,6 @@ use yii\grid\ActionColumn;
                                     'attribute' => 'Account Number',
                                     'value' => 'account',
                                 ],
-
-                                [ 'class' => 'yii\grid\ActionColumn',
-                                    'template' => ' {update}',
-                                    'buttons' =>
-                                        [
-
-                                        ]
-                                ]
                             ]
                         ]);
                         ?>
@@ -115,32 +107,4 @@ use yii\grid\ActionColumn;
     </div>
     <!-- END CONTENT BODY -->
 </div>
-<script>
-    $('#bank').change(function () {
-        getBankBranches($('#bank').val());
-    });
 
-    function getBankBranches(bank_code)
-    {
-        $.ajax({
-            'type': 'GET',
-            'url': 'banks',
-            'cache': false,
-            'data': {
-                bank_code : bank_code
-            },
-            'success': function (branches) {
-                var converted=JSON.parse(branches);
-
-                $('#branch').append('<option>---Select Branch---</option>');
-                for (var i=0;i<Object.keys(converted).length;i++){
-                    $('#branch').append($('<option>', {
-                        value: converted[i]['id'],
-                        text: converted[i]['name']
-                    }));
-                    $('#banky').val(converted[i]['bank_id']);
-                }
-            }
-        });
-    }
-</script>

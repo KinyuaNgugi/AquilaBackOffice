@@ -118,7 +118,7 @@
                 </a>
             </li>
             <li id="inventory-reports-page" class="nav-item  ">
-                <a href="<?=Yii::$app->homeUrl;?>dashboard/creditorreports" class="nav-link nav-toggle">
+                <a href="<?=Yii::$app->homeUrl;?>dashboard/productreports" class="nav-link nav-toggle">
                     <i class="fa fa-cogs"></i>
                     <span class="title">Product Reports</span>
                     <span class="pull-right"><i class="fa fa-angle-right"></i></span>

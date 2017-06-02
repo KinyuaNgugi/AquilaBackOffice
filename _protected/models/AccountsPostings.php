@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\data\ActiveDataProvider;
 
 /**
  * This is the model class for table "accounts_postings".
@@ -16,6 +17,7 @@ use Yii;
  * @property double $rate
  * @property string $description
  * @property string $date
+ * @property double $balance
  */
 class AccountsPostings extends \yii\db\ActiveRecord
 {
@@ -34,7 +36,7 @@ class AccountsPostings extends \yii\db\ActiveRecord
     {
         return [
             [['org_id', 'account_id'], 'integer'],
-            [['credit', 'debit', 'rate'], 'number'],
+            [['credit', 'debit', 'rate', 'balance'], 'number'],
             [['date'], 'safe'],
             [['currency'], 'string', 'max' => 10],
             [['description'], 'string', 'max' => 100],
@@ -56,6 +58,24 @@ class AccountsPostings extends \yii\db\ActiveRecord
             'rate' => 'Rate',
             'description' => 'Description',
             'date' => 'Date',
+            'balance' => 'Balance',
         ];
+    }
+    public static function getPostingsByAccount($id)
+    {
+        $query = self::find()->where(['account_id' => $id]);
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        return $dataProvider;
+    }
+    public static function getTotalDebit($id)
+    {
+        return self::find()->where(['account_id' => $id])->sum('debit');
+    }
+    public static function getTotalCredit($id)
+    {
+        return self::find()->where(['account_id' => $id])->sum('credit');
     }
 }

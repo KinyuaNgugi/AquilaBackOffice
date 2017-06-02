@@ -1,30 +1,17 @@
 <?php
 namespace app\controllers;
+use app\models\AccountBase;
+use app\models\AccountsPostings;
 use app\models\Bankbranch;
 use app\models\Banks;
 use app\models\CountryTaxRates;
+use app\models\LevelOne;
+use app\models\LevelTwo;
 use app\models\OrgBanks;
 use app\models\OrgChart;
 use app\models\Stock;
 use app\models\Supplier;
 use yii;
-use app\models\Partner;
-use app\models\Paymentschedules;
-use app\models\Partnercodeuse;
-use app\models\Commision;
-use app\models\Withdrawals;
-use app\models\Transactions;
-use app\models\Payouts;
-use app\models\Payments;
-use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use yii\web\Session;
-use app\models\UploadForm;
-use app\models\IdUploadForm;
-use app\models\RegUploadForm;
-use yii\web\UploadedFile;
-use yii\data\Sort;
 
 class DashboardController extends \yii\web\Controller
 {
@@ -172,9 +159,49 @@ class DashboardController extends \yii\web\Controller
     public function actionChart()
     {
         $this->layout = 'backend';
+
+        $data = Yii::$app->request->post();
+        $main = Yii::$app->request->get('main');
+        $l1 = Yii::$app->request->get('l1');
+        if ($main)
+        {
+            $l1s = LevelOne::find()->where(array('level_up_id' => $main))
+                ->orderBy(['name' => SORT_ASC])->all();
+            $result=array();
+
+            foreach ($l1s as $key)
+                array_push($result,array('id'=>$key->id,'name'=>$key->name));
+            echo json_encode($result);
+            return;
+        }
+        if ($l1)
+        {
+            $l2s = LevelTwo::find()->where(array('level_up_id' => $l1))
+                ->orderBy(['level_name' => SORT_ASC])->all();
+            $result=array();
+
+            foreach ($l2s as $key)
+                array_push($result,array('id'=>$key->id,'name'=>$key->level_name));
+            echo json_encode($result);
+            return;
+        }
+        if ($data)
+        {
+            $model = new OrgChart();
+            $model->main_acc_id = $data['main'];
+            $model->level_one_id = $data['l1'];
+            $model->level_two_id = $data['l2'];
+            $model->level_three = strtoupper($data['l3']);
+            if ($model->save())
+            {
+                Yii::$app->session->setFlash('feedback' , ['type' => 'success','msg' => 'Account saved to chart']);
+            }
+        }
+
         $chart=OrgChart::find()->all();
         return $this->render('chart-of-accounts', [
-            'chart' => $chart
+            'chart' => $chart,
+            'mains' => AccountBase::find()->all()
         ]);
     }
     public function actionPostings()
@@ -190,27 +217,262 @@ class DashboardController extends \yii\web\Controller
     public function actionRevenuereports()
     {
         $this->layout = 'backend';
-        return $this->render('revenue_reports');
+        $data = Yii::$app->request->post();
+        $get_data = Yii::$app->request->get();
+        $start_date = null;
+        $end_date = null;
+        $period = null;
+        $date_range = null;
+        $product = null;
+        $account_id = null;
+        if ($data)
+        {
+            $start_date = date('Y-m-d', strtotime(explode('-',$data['daterange'])[0]));
+            $end_date = date('Y-m-d', strtotime(explode('-',$data['daterange'])[1]));
+            if (isset($data['period'])) $period = $data['period'];
+            $date_range = $data['daterange'];
+            if (isset($data['product']))
+            {
+                return $this->redirect(
+                    [
+                        'dashboard/revenuereports?account_id='.explode('=>', $data['product'])[1].
+                        '&product_name='.$data['product'].
+                        '&daterange='.$data['daterange'].
+                        '&start='. $start_date.
+                        '&end='. $end_date.
+                        '#tab2'
+                    ]
+                );
+            }
+        }
+        if ($get_data)
+        {
+            $start_date = date('Y-m-d', strtotime(explode('-',$get_data['daterange'])[0]));
+            $end_date = date('Y-m-d', strtotime(explode('-',$get_data['daterange'])[1]));
+            $date_range = $get_data['daterange'];
+            $product = $get_data['product_name'];
+            $account_id = $get_data['account_id'];
+        }
+        return $this->render('revenue_reports',
+            [
+                'start' => $start_date,
+                'end' => $end_date,
+                'period' => $period,
+                'daterange' => $date_range,
+                'product_name' => $product,
+                'account_id' =>$account_id
+            ]);
     }
     public function actionCostreports()
     {
         $this->layout = 'backend';
-        return $this->render('cost_reports');
+        $data = Yii::$app->request->post();
+        $get_data = Yii::$app->request->get();
+        $start_date = null;
+        $end_date = null;
+        $period = null;
+        $date_range = null;
+        $product = null;
+        $account_id = null;
+        $supplier = null;
+        $supplier_account_id = null;
+        if ($data)
+        {
+            $start_date = date('Y-m-d', strtotime(explode('-',$data['daterange'])[0]));
+            $end_date = date('Y-m-d', strtotime(explode('-',$data['daterange'])[1]));
+            if (isset($data['period'])) $period = $data['period'];
+            $date_range = $data['daterange'];
+            if (isset($data['product']))
+            {
+                return $this->redirect(
+                    [
+                        'dashboard/costreports?account_id='.explode('=>', $data['product'])[1].
+                        '&product_name='.$data['product'].
+                        '&daterange='.$data['daterange'].
+                        '&start='. $start_date.
+                        '&end='. $end_date.
+                        '#tab2'
+                    ]
+                );
+            }
+            if (isset($data['supplier']))
+            {
+                return $this->redirect(
+                    [
+                        'dashboard/costreports?supplier_account_id='.explode('=>', $data['supplier'])[1].
+                        '&supplier_name='.$data['supplier'].
+                        '&daterange='.$data['daterange'].
+                        '&start='. $start_date.
+                        '&end='. $end_date.
+                        '#tab3'
+                    ]
+                );
+            }
+        }
+        if ($get_data)
+        {
+            $start_date = date('Y-m-d', strtotime(explode('-',$get_data['daterange'])[0]));
+            $end_date = date('Y-m-d', strtotime(explode('-',$get_data['daterange'])[1]));
+            $date_range = $get_data['daterange'];
+            if (isset($get_data['product_name']))
+            {
+                $product = $get_data['product_name'];
+                $account_id = $get_data['account_id'];
+            }
+            else
+            {
+                $supplier = $get_data['supplier_name'];
+                $supplier_account_id = $get_data['supplier_account_id'];
+            }
+        }
+        return $this->render('cost_reports',
+            [
+                'start' => $start_date,
+                'end' => $end_date,
+                'period' => $period,
+                'daterange' => $date_range,
+                'product_name' => $product,
+                'account_id' =>$account_id,
+                'supplier_name' => $supplier,
+                'supplier_account_id' => $supplier_account_id
+            ]);
     }
     public function actionDebtorreports()
     {
         $this->layout = 'backend';
-        return $this->render('debtor_reports');
+        $data = Yii::$app->request->post();
+        $start_date = null;
+        $end_date = null;
+        $period = null;
+        $date_range = null;
+        if ($data)
+        {
+            $start_date = date('Y-m-d', strtotime(explode('-',$data['daterange'])[0]));
+            $end_date = date('Y-m-d', strtotime(explode('-',$data['daterange'])[1]));
+            $period = $data['period'];
+            $date_range = $data['daterange'];
+        }
+        return $this->render('debtor_reports',
+            [
+                'start' => $start_date,
+                'end' => $end_date,
+                'period' => $period,
+                'daterange' => $date_range
+            ]);
     }
     public function actionCreditorreports()
     {
         $this->layout = 'backend';
-        return $this->render('creditor_reports');
+        $data = Yii::$app->request->post();
+        $start_date = null;
+        $end_date = null;
+        $period = null;
+        $date_range = null;
+        if ($data)
+        {
+            $start_date = date('Y-m-d', strtotime(explode('-',$data['daterange'])[0]));
+            $end_date = date('Y-m-d', strtotime(explode('-',$data['daterange'])[1]));
+            $period = $data['period'];
+            $date_range = $data['daterange'];
+        }
+        return $this->render('creditor_reports',
+            [
+                'start' => $start_date,
+                'end' => $end_date,
+                'period' => $period,
+                'daterange' => $date_range
+            ]);
     }
     public function actionVatreports()
     {
         $this->layout = 'backend';
-        return $this->render('vat_reports');
+        $data = Yii::$app->request->post('daterange');
+        $start_date = null;
+        $end_date =null;
+        if ($data)
+        {
+            $start_date = date('Y-m-d', strtotime(explode('-',$data)[0]));
+            $end_date = date('Y-m-d', strtotime(explode('-',$data)[1]));
+        }
+        return $this->render('vat_reports',
+            [
+                'start' => $start_date,
+                'end' => $end_date,
+                'daterange' => $data
+            ]);
+    }
+    public function actionProductreports()
+    {
+        $this->layout = 'backend';
+        $data = Yii::$app->request->post();
+        if ($data)
+        {
+            $start_date = date('Y-m-d', strtotime(explode('-',$data['daterange'])[0]));
+            $end_date = date('Y-m-d', strtotime(explode('-',$data['daterange'])[1]));
+            return $this->render('product_reports',
+                [
+                    'account_id' => explode('=>', $data['product'])[1],
+                    'product_name' => $data['product'],
+                    'daterange' => $data['daterange'],
+                    'start' => $start_date,
+                    'end' => $end_date
+                ]);
+        }
+
+        return $this->render('product_reports',
+            [
+                'account_id' => null,
+                'product_name' => null,
+                'daterange' => null,
+                'start' => null,
+                'end' => null
+            ]);
+
+    }
+    public function actionView($id)
+    {
+        $this->layout = 'backend';
+        $model = AccountsPostings::find()->where(['account_id' => $id])->orderBy('id DESC')->one();
+        $balance = 0;
+        if ($model) $balance = $model->balance;
+        return $this->render('statements',
+            [
+                'dataProvider' => AccountsPostings::getPostingsByAccount($id),
+                'name' => OrgChart::findOne($id)->level_three,
+                'total_debit' => AccountsPostings::getTotalDebit($id),
+                'total_credit' => AccountsPostings::getTotalCredit($id),
+                'balance' => $balance
+            ]);
+    }
+    public function actionGetinventoryfromchart()
+    {
+        $search_term = Yii::$app->request->get('search');
+        if ($search_term)
+        {
+            $products = OrgChart::find()
+                ->where('level_three LIKE :substr', array(':substr' => '%'.$search_term.'%'))
+                ->andWhere(['main_acc_id' => 1, 'level_one_id' =>2, 'level_two_id' =>34])
+                ->all();
+            $result=array();
+            foreach ($products as $product)
+                array_push($result,array('id' => $product->id, 'name' =>$product->level_three));
+            echo json_encode($result);
+        }
+    }
+    public function actionGetsuppliersfromchart()
+    {
+        $search_term = Yii::$app->request->get('search');
+        if ($search_term)
+        {
+            $products = OrgChart::find()
+                ->where('level_three LIKE :substr', array(':substr' => '%'.$search_term.'%'))
+                ->andWhere(['main_acc_id' => 2, 'level_one_id' =>4, 'level_two_id' =>27])
+                ->all();
+            $result=array();
+            foreach ($products as $product)
+                array_push($result,array('id' => $product->id, 'name' =>$product->level_three));
+            echo json_encode($result);
+        }
     }
     public function actionWelcome()
     {

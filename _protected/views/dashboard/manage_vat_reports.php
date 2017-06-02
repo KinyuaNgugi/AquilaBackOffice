@@ -1,4 +1,5 @@
 <?php
+use yii\widgets\ActiveForm;
 use kartik\grid\GridView;
 use app\models\Expense;
 use \app\models\Income;
@@ -47,13 +48,69 @@ use \app\models\Income;
                 <!-- Tab panes -->
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="tab1">
-                        <h3>Total Purchases</h3>
+                        <hr class="divider">
+                        <div class="form-group row">
+                            <table>
+                                <tr>
+                                    <td><label><b>Filter By Date:</b></label><br></td>
+                                </tr>
+                                <?php ActiveForm::begin();?>
+                                <tr>
+                                    <td><input type="text" class="form-control" name="daterange" value="<?=$daterange?>" placeholder="Filter" ></td>
+                                    <td><button type="submit" class="btn btn-black">Filter</button></td>
+                                </tr>
+                                <?php ActiveForm::end();?>
+                            </table>
+                        </div>
+                        <hr class="divider">
+                        <h3>Total Sales</h3>
                         <?php
-                        $searchModel = new Expense();
-                        $dataProvider = $searchModel->search(Yii::$app->request->get(),"paid");
+                        $searchModel = new Income();
+                        $dataProvider = $searchModel->search(Yii::$app->request->get(),"paid",$start,$end);
                         echo GridView::widget([
                             'dataProvider' => $dataProvider,
                             'filterModel' => $searchModel,
+                            'showFooter'=>TRUE,
+                            'footerRowOptions'=>['style'=>'font-weight:bold;text-decoration: italics;'],
+                            'columns' => [
+                                ['class' => 'yii\grid\SerialColumn'],
+
+                                [
+                                    'attribute' => 'Receipt Number',
+                                    'value' => 'receiptNumber',
+                                ],
+                                [
+                                    'attribute' => 'Date',
+                                    'value' => 'actualDate',
+                                ],
+                                [
+                                    'attribute' => 'Amount',
+                                    'value' => 'total',
+                                ],
+                                [
+                                    'attribute' => 'Tax',
+                                    'value' => 'tax',
+                                ],
+                                [
+                                    'attribute' => 'Amount',
+                                    'value' => 'total',
+                                    'footer' => 'Total Amount: '.number_format($searchModel->getTotalPaid($start,$end))
+                                ],
+                                [
+                                    'attribute' => 'Tax',
+                                    'value' => 'tax',
+                                    'footer' => 'Total Sales Tax: '.number_format($searchModel->getTotalPaidTax($start,$end))
+                                ]
+                            ]
+                        ]);
+                        ?>
+                        <h3>Total Purchases</h3>
+                        <?php
+                        $searchModel1 = new Expense();
+                        $dataProvider = $searchModel1->search(Yii::$app->request->get(),"paid",$start,$end);
+                        echo GridView::widget([
+                            'dataProvider' => $dataProvider,
+                            'filterModel' => $searchModel1,
                             'showFooter'=>TRUE,
                             'footerRowOptions'=>['style'=>'font-weight:bold;text-decoration: italics;'],
 
@@ -75,50 +132,35 @@ use \app\models\Income;
                                 [
                                     'attribute' => 'Amount',
                                     'value' => 'total',
-                                    'footer' => 'Total Amount: '.number_format($searchModel->getTotalPaid())
+                                    'footer' => 'Total Amount: '.number_format($searchModel1->getTotalPaid($start,$end))
                                 ],
                                 [
                                     'attribute' => 'Tax',
                                     'value' => 'tax',
-                                    'footer' => 'Total Tax: '.number_format($searchModel->getTotalPaidTax())
+                                    'footer' => 'Total Purchases Tax: '.number_format($searchModel1->getTotalPaidTax($start,$end))
                                 ]
                             ]
                         ]);
                         ?>
-                        <h3>Total Sales</h3>
-                        <?php
-                        $searchModel = new Income();
-                        $dataProvider = $searchModel->search(Yii::$app->request->get(),"paid");
-                        echo GridView::widget([
-                            'dataProvider' => $dataProvider,
-                            'filterModel' => $searchModel,
-
-                            'columns' => [
-                                ['class' => 'yii\grid\SerialColumn'],
-
-                                [
-                                    "attribute" => "Client",
-                                    'value' => 'client.client_name',
-                                ],
-                                [
-                                    'attribute' => 'Receipt Number',
-                                    'value' => 'receiptNumber',
-                                ],
-                                [
-                                    'attribute' => 'Date',
-                                    'value' => 'actualDate',
-                                ],
-                                [
-                                    'attribute' => 'Amount',
-                                    'value' => 'total',
-                                ],
-                                [
-                                    'attribute' => 'Tax',
-                                    'value' => 'tax',
-                                ]
-                            ]
-                        ]);
-                        ?>
+                        <hr class="divider">
+                        <table class="table-bordered table-striped">
+                            <tbody>
+                            <tr>
+                                <th width="80%">Total Sales Tax</th>
+                                <th width="50%"><?=number_format($searchModel->getTotalPaidTax($start,$end))?></th>
+                            </tr>
+                            <tr>
+                                <th width="80%">Total Purchases Tax</th>
+                                <th width="50%"><?=number_format($searchModel1->getTotalPaidTax($start,$end))?></th>
+                            </tr>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th width="80%">Total Payable Tax</th>
+                                <th width="50%">KSH <?=number_format($searchModel->getTotalPaidTax($start,$end)-$searchModel1->getTotalPaidTax($start,$end))?></th>
+                            </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
             </div>

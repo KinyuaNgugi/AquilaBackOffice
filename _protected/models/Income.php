@@ -18,6 +18,8 @@ use yii\data\ActiveDataProvider;
  */
 class Income extends \yii\db\ActiveRecord
 {
+    public $total;
+    public $tax;
     /**
      * @inheritdoc
      */
@@ -63,24 +65,27 @@ class Income extends \yii\db\ActiveRecord
         return $this->hasMany(IncomeItems::className(), ['receipt_id' => 'rid']);
     }
 
-    public function search($params,$cat)
+    public function search($params,$cat,$start_date=null,$end_date=null)
     {
+        $between_section = '';
+        if ($start_date != null && $end_date != null)
+            $between_section=" where (actualDate between ' ". $start_date ."' and '". $end_date."')";
         if ($cat == 'all')
-            $query = Income::findBySql('select income.rid,sum(total) as \'total\',receiptNumber,client_id,
-                        sum(t_tax) AS \'tax\',actualDate
+            $query = Income::findBySql("select income.rid,sum(total) as 'total',receiptNumber,client_id,
+                        sum(t_tax) AS 'tax',actualDate
                         from income INNER JOIN income_items ON income.rid = income_items.receipt_id
-                        GROUP BY income.rid');
+                        $between_section GROUP BY income.rid");
 
         if ($cat == 'paid')
-            $query = Income::findBySql('select income.rid,sum(total) as \'total\',receiptNumber,client_id,
-                        sum(t_tax) AS \'tax\',actualDate
+            $query = Income::findBySql("select income.rid,sum(total) as 'total',receiptNumber,client_id,
+                        sum(t_tax) AS 'tax',actualDate
                         from income INNER JOIN income_items ON income.rid = income_items.receipt_id
-                        WHERE paid=1 GROUP BY income.rid');
+                        $between_section AND paid=1 GROUP BY income.rid");
         if ($cat == 'credit')
-            $query = Income::findBySql('select income.rid,sum(total) as \'total\',receiptNumber,client_id,
-                        sum(t_tax) AS \'tax\',actualDate
+            $query = Income::findBySql("select income.rid,sum(total) as 'total',receiptNumber,client_id,
+                        sum(t_tax) AS 'tax',actualDate
                         from income INNER JOIN income_items ON income.rid = income_items.receipt_id
-                        WHERE paid=0 GROUP BY income.rid');
+                        $between_section AND paid=0 GROUP BY income.rid");
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -96,5 +101,39 @@ class Income extends \yii\db\ActiveRecord
         $query->andFilterWhere(['receiptNumber' => $this->receiptNumber]);
 
         return $dataProvider;
+    }
+    public function getTotalPaid($start_date=null,$end_date=null)
+    {
+        $between_section = '';
+        if ($start_date != null && $end_date != null)
+            $between_section=" where (actualDate between ' ". $start_date ."' and '". $end_date."')";
+        $total = 0;
+        $expenses = Income::findBySql("select income.rid,sum(total) as 'total',receiptNumber,client_id,
+                        sum(t_tax) AS 'tax',actualDate
+                        from income INNER JOIN income_items ON income.rid = income_items.receipt_id
+                        $between_section AND paid=1 GROUP BY income.rid")->all();
+
+        foreach ($expenses as $key)
+        {
+            $total += $key->total;
+        }
+        return $total;
+    }
+    public function getTotalPaidTax($start_date=null,$end_date=null)
+    {
+        $between_section = '';
+        if ($start_date != null && $end_date != null)
+            $between_section=" where (actualDate between ' ". $start_date ."' and '". $end_date."')";
+        $tax = 0;
+        $expenses = Income::findBySql("select income.rid,sum(total) as 'total',receiptNumber,client_id,
+                        sum(t_tax) AS 'tax',actualDate
+                        from income INNER JOIN income_items ON income.rid = income_items.receipt_id
+                        $between_section AND paid=1 GROUP BY income.rid")->all();
+
+        foreach ($expenses as $key)
+        {
+            $tax += $key->tax;
+        }
+        return $tax;
     }
 }

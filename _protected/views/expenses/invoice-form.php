@@ -241,7 +241,7 @@ use yii\widgets\ActiveForm;
         $('.product-list').empty();
         var product=$('.product-search').val();
         //ajax action to get the products
-        if (product.length>=2)
+        if (product.length > 3)
         {
             $.ajax({
                 'type': 'GET',

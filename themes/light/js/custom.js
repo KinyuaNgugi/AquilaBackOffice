@@ -1,4 +1,3 @@
-
 $('.table').DataTable({ "language": {
       "emptyTable": "No records found for now"
     }});
@@ -48,6 +47,9 @@ $("#product-form").on('blur', '#product-name', function(){
         }
     });
 });
+
+
+
 
 
 

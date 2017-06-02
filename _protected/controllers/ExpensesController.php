@@ -220,6 +220,11 @@ class ExpensesController extends \yii\web\Controller
                     $debit_post_model->org_id = 2;
                     $debit_post_model->date = date("Y-m-d");
                     $debit_post_model->description = 'Increase inventory from invoice '.$model->po_number;
+                    $balance = $inventory->total;
+                    $previous_entry_model = AccountsPostings::find()->where(['account_id' => $account_to_debit])->one();
+                    if ($previous_entry_model)
+                        $balance = $previous_entry_model->balance + $balance;
+                    $debit_post_model->balance = $balance;
                     $total_po_cost += $inventory->total;
 
                     $debit_post_model->save();
@@ -236,7 +241,11 @@ class ExpensesController extends \yii\web\Controller
                 $credit_post_model->org_id = 2;
                 $credit_post_model->date = date("Y-m-d");
                 $credit_post_model->description = 'Debt for invoice '.$model->po_number;
-
+                $balance = $total_po_cost;
+                $previous_entry_model = AccountsPostings::find()->where(['account_id' => $account_to_credit])->one();
+                if ($previous_entry_model)
+                    $balance = $previous_entry_model->balance + $balance;
+                $credit_post_model->balance = $balance;
                 $credit_post_model->save();
 
                 Yii::$app->session->setFlash('feedback' , ['type' => 'success','msg' => 'Invoice approved']);
@@ -265,6 +274,11 @@ class ExpensesController extends \yii\web\Controller
                 $credit_post_model->org_id = 2;
                 $credit_post_model->date = date("Y-m-d");
                 $credit_post_model->description = 'Withdrawal for payment of invoice '.$expense_model->po_number;
+                $balance = $data['amount'] * -1;
+                $previous_entry_model = AccountsPostings::find()->where(['account_id' => $data['account']])->one();
+                if ($previous_entry_model)
+                    $balance = $previous_entry_model->balance + $balance;
+                $credit_post_model->balance = $balance;
 
                 //debit the accounts payable
                 $account_to_debit = OrgChart::find()->where(
@@ -277,6 +291,11 @@ class ExpensesController extends \yii\web\Controller
                 $debit_post_model->org_id = 2;
                 $debit_post_model->date = date("Y-m-d");
                 $debit_post_model->description = 'Payment for invoice '.$expense_model->po_number;
+                $balance = $data['amount'] * -1;
+                $previous_entry_model = AccountsPostings::find()->where(['account_id' => $account_to_debit])->one();
+                if ($previous_entry_model)
+                    $balance = $previous_entry_model->balance + $balance;
+                $debit_post_model->balance = $balance;
 
                 if ($credit_post_model->save() && $debit_post_model->save())
                 {

@@ -17,5 +17,55 @@
 <script type="text/javascript">
     var nav = $('#cost-reports-page');
     nav.addClass('active open');
+    $("#products tbody").on('keyup', '.product-search', function(){
+        $('.product-list').empty();
+        var product=$('.product-search').val();
+        //ajax action to get the products
+        if (product.length > 3)
+        {
+            $.ajax({
+                'type': 'GET',
+                'url': 'getinventoryfromchart',
+                'cache': false,
+                'data': {
+                    search:product
+                },
+                'success': function (prods) {
+                    var converted=JSON.parse(prods);
+                    for (var i=0;i<Object.keys(converted).length;i++){
+                        $('.product-list').append($('<option>', {
+                            value: converted[i]['name'] + '=>' +converted[i]['id'],
+                            text: converted[i]['name']
+                        }));
+                    }
+                }
+            });
+        }
+    });
+    $("#suppliers tbody").on('keyup', '.supplier-search', function(){
+        $('.supplier-list').empty();
+        var product=$('.supplier-search').val();
+        //ajax action to get the products
+        if (product.length > 3)
+        {
+            $.ajax({
+                'type': 'GET',
+                'url': 'getsuppliersfromchart',
+                'cache': false,
+                'data': {
+                    search:product
+                },
+                'success': function (prods) {
+                    var converted=JSON.parse(prods);
+                    for (var i=0;i<Object.keys(converted).length;i++){
+                        $('.supplier-list').append($('<option>', {
+                            value: converted[i]['name'] + '=>' +converted[i]['id'],
+                            text: converted[i]['name']
+                        }));
+                    }
+                }
+            });
+        }
+    });
 </script>
 
