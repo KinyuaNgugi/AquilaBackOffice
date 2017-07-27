@@ -60,8 +60,9 @@ use yii\grid\GridView;
                                 </div>
                                 <div class="form-group">
                                     <label>Level Three<sup>*</sup></label>
-                                    <input type="text" class="form-control" name="l3" required>
+                                    <input type="text" class="form-control" id="l3" name="l3" required>
                                 </div>
+                                <span id="l3_error" class="text-danger"></span>
                                 <hr class="divider">
                                 <div class="form-group pull-right">
                                     <button type="submit" class="btn btn-success">Add</button>

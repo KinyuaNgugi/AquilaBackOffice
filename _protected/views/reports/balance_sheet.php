@@ -1,8 +1,8 @@
 <?php
-$this->title = 'About OpenBusiness';
+$this->title = 'Balance Sheet';
 ?>
 <br>
-<h1 class="text-center">Balance Sheet</h1>
+<h1 class="text-center">BALANCE SHEET | FOR THE PERIOD <?=$start?></h1>
 <br><br>
 <div class="panel panel-success">
     <div class="panel-body">

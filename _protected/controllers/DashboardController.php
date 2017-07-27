@@ -163,6 +163,7 @@ class DashboardController extends \yii\web\Controller
         $data = Yii::$app->request->post();
         $main = Yii::$app->request->get('main');
         $l1 = Yii::$app->request->get('l1');
+        $l3 = Yii::$app->request->get('l3');
         if ($main)
         {
             $l1s = LevelOne::find()->where(array('level_up_id' => $main))
@@ -183,6 +184,18 @@ class DashboardController extends \yii\web\Controller
             foreach ($l2s as $key)
                 array_push($result,array('id'=>$key->id,'name'=>$key->level_name));
             echo json_encode($result);
+            return;
+        }
+        if ($l3)
+        {
+            if (count(OrgChart::find()->where(array('level_three' => $l3))->one()) == 1)
+            {
+                echo true;
+            }
+            else
+            {
+                echo false;
+            }
             return;
         }
         if ($data)

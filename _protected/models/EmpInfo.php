@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\data\ActiveDataProvider;
 
 /**
  * This is the model class for table "emp_info".
@@ -24,6 +25,7 @@ use Yii;
  * @property string $type
  * @property string $joinDate
  * @property string $marital
+ * @property integer $status
  */
 class EmpInfo extends \yii\db\ActiveRecord
 {
@@ -42,7 +44,7 @@ class EmpInfo extends \yii\db\ActiveRecord
     {
         return [
             [['accountid', 'firstname', 'middlename', 'surname', 'cellphone', 'gender', 'dob', 'id_no', 'orgid', 'psId', 'joinDate', 'marital'], 'required'],
-            [['accountid', 'orgid', 'psId'], 'integer'],
+            [['accountid', 'orgid', 'psId', 'status'], 'integer'],
             [['dob', 'joinDate'], 'safe'],
             [['firstname', 'middlename', 'surname', 'cellphone', 'gender', 'id_no', 'photo', 'payroll_number'], 'string', 'max' => 255],
             [['state'], 'string', 'max' => 40],
@@ -74,6 +76,31 @@ class EmpInfo extends \yii\db\ActiveRecord
             'type' => 'Type',
             'joinDate' => 'Join Date',
             'marital' => 'Marital',
+            'status' => 'Status',
         ];
+    }
+    public function search($params,$cat)
+    {
+        if ($cat=='active')
+            $query = EmpInfo::find()
+                ->where(['status' => 1]);
+
+        if ($cat=='terminated')
+            $query = EmpInfo::find()
+                ->where(['status' => 0]);
+        
+
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        // load the search form data and validate
+        if (!($this->load($params) && $this->validate()))
+        {
+            return $dataProvider;
+        }
+
+        return $dataProvider;
     }
 }

@@ -22,8 +22,17 @@
         getLevelOnes($('#main').val());
     });
 
+    $('#l1').change(function () {
+        getLevelTwos($('#l1').val());
+    });
+
+    $('#l3').blur(function () {
+        validateLevelThree($('#l3').val());
+    });
+
     function getLevelOnes(main)
     {
+        $('#l1').empty();
         $.ajax({
             'type': 'GET',
             'url': 'chart',
@@ -44,11 +53,10 @@
             }
         });
     }
-    $('#l1').change(function () {
-        getLevelTwos($('#l1').val());
-    });
+
     function getLevelTwos(l1)
     {
+        $('#l2').empty();
         $.ajax({
             'type': 'GET',
             'url': 'chart',
@@ -65,6 +73,28 @@
                         value: converted[i]['id'],
                         text: converted[i]['name']
                     }));
+                }
+            }
+        });
+    }
+    function validateLevelThree(l3)
+    {
+        $.ajax({
+            'type': 'GET',
+            'url': 'chart',
+            'cache': false,
+            'data': {
+                l3 : l3
+            },
+            'success': function (exists) {
+                if (exists)
+                {
+                    $('#l3').val('');
+                    $('#l3_error').html('Name already taken');
+                }
+                else
+                {
+                    $('#l3_error').html('');
                 }
             }
         });

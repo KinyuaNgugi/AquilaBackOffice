@@ -103,6 +103,27 @@ class OrgChart extends \yii\db\ActiveRecord
                 ->with('level_one')
                 ->with('level_two')
                 ->where(['main_acc_id'=>2,'level_one_id'=>4,'level_two_id'=>27]);
+        
+        if ($cat==='debtors')
+            $query = OrgChart::find()
+                ->with('account_base')
+                ->with('level_one')
+                ->with('level_two')
+                ->where(['main_acc_id'=>1,'level_one_id'=>2,'level_two_id'=>26]);
+
+        if ($cat==='expenses')
+            $query = OrgChart::find()
+                ->with('account_base')
+                ->with('level_one')
+                ->with('level_two')
+                ->where(['main_acc_id'=>3]);
+        
+        if ($cat==='income')
+            $query = OrgChart::find()
+                ->with('account_base')
+                ->with('level_one')
+                ->with('level_two')
+                ->where(['main_acc_id'=>4]);
 
         if ($cat==='approved')
             $query = Expense::find()->with('supplier')->where(array('approved' => 1));

@@ -181,6 +181,126 @@ use yii\grid\GridView;
                         ]);
                         ?>
                     </div>
+                    <div role="tabpanel" class="tab-pane " id="tab4">
+                        <?php
+                        $searchModel = new OrgChart();
+                        $dataProvider = $searchModel->search(Yii::$app->request->get(),"debtors");
+
+                        echo GridView::widget([
+                            'dataProvider' => $dataProvider,
+                            'filterModel' => $searchModel,
+
+                            'columns' => [
+                                ['class' => 'yii\grid\SerialColumn'],
+
+                                [
+                                    'attribute' => 'Main Account',
+                                    'value' => 'account_base.account_base_name',
+                                ],
+                                [
+                                    "attribute" => "Level One",
+                                    'value' => 'level_one.name',
+                                ],
+                                [
+                                    'attribute' => 'Level Two',
+                                    'value' => 'level_two.level_name',
+                                ],
+                                [
+                                    'attribute' => 'Level Three',
+                                    'value' => 'level_three',
+                                ],
+
+                                [ 'class' => 'yii\grid\ActionColumn',
+                                    'template' => '{view}',
+                                    'buttons' =>
+                                        [
+
+                                        ]
+                                ]
+                            ]
+                        ]);
+                        ?>
+                    </div>
+                    <div role="tabpanel" class="tab-pane " id="tab5">
+                        <?php
+                        $searchModel = new OrgChart();
+                        $dataProvider = $searchModel->search(Yii::$app->request->get(),"expenses");
+
+                        echo GridView::widget([
+                            'dataProvider' => $dataProvider,
+                            'filterModel' => $searchModel,
+
+                            'columns' => [
+                                ['class' => 'yii\grid\SerialColumn'],
+
+                                [
+                                    'attribute' => 'Main Account',
+                                    'value' => 'account_base.account_base_name',
+                                ],
+                                [
+                                    "attribute" => "Level One",
+                                    'value' => 'level_one.name',
+                                ],
+                                [
+                                    'attribute' => 'Level Two',
+                                    'value' => 'level_two.level_name',
+                                ],
+                                [
+                                    'attribute' => 'Level Three',
+                                    'value' => 'level_three',
+                                ],
+
+                                [ 'class' => 'yii\grid\ActionColumn',
+                                    'template' => '{view}',
+                                    'buttons' =>
+                                        [
+
+                                        ]
+                                ]
+                            ]
+                        ]);
+                        ?>
+                    </div>
+                    <div role="tabpanel" class="tab-pane " id="tab6">
+                        <?php
+                        $searchModel = new OrgChart();
+                        $dataProvider = $searchModel->search(Yii::$app->request->get(),"income");
+
+                        echo GridView::widget([
+                            'dataProvider' => $dataProvider,
+                            'filterModel' => $searchModel,
+
+                            'columns' => [
+                                ['class' => 'yii\grid\SerialColumn'],
+
+                                [
+                                    'attribute' => 'Main Account',
+                                    'value' => 'account_base.account_base_name',
+                                ],
+                                [
+                                    "attribute" => "Level One",
+                                    'value' => 'level_one.name',
+                                ],
+                                [
+                                    'attribute' => 'Level Two',
+                                    'value' => 'level_two.level_name',
+                                ],
+                                [
+                                    'attribute' => 'Level Three',
+                                    'value' => 'level_three',
+                                ],
+
+                                [ 'class' => 'yii\grid\ActionColumn',
+                                    'template' => '{view}',
+                                    'buttons' =>
+                                        [
+
+                                        ]
+                                ]
+                            ]
+                        ]);
+                        ?>
+                    </div>
                 </div>
             </div>
         </div>

@@ -532,4 +532,32 @@ class ReportCosts
         else
             return 'No Data Exists';
     }
+    function getExpensesByCategory($id,$start_date,$end_date){
+        $betweenSection="";
+        if($start_date!=null && $end_date!=null){
+            $betweenSection=" and (date between ' ". $start_date ."' and '". $end_date."')";
+        }
+        $expenses=Yii::$app->db->createCommand
+        ('select * from org_chart where main_acc_id=3 and org_id="'.$id.'"')
+            ->queryAll();
+        $expenses_and_balances=array();
+        foreach ($expenses as $expense){
+            $expenses_and_details=Yii::$app->db->createCommand
+            ('select * from accounts_postings where account_id="'.$expense['id'].'"'.$betweenSection)
+                ->queryAll();
+            $balance=0;
+            if ($expenses_and_details!=null){
+                foreach ($expenses_and_details as $item){
+                    if ($item['debit']==0)
+                        $balance=$balance+($item['credit']);
+                    if ($item['credit']==0)
+                        $balance=$balance-($item['debit']);
+                    else
+                        $balance=$balance+(($item['credit']-$item['debit']));
+                }
+                array_push($expenses_and_balances,array('l1'=>$expense['level_one_id'],'l2'=>$expense['level_two_id'],'acc'=>$expense['level_three'],'bal'=>abs($balance)));
+            }
+        }
+        return $expenses_and_balances;
+    }
 }

@@ -72,11 +72,6 @@
                                 <i class="icon-user"></i> Accounts
                             </a>
                         </li>
-                        <li>
-                            <a href="<?=Yii::$app->homeUrl;?>hrm/index">
-                                <i class="icon-user"></i> HRM
-                            </a>
-                        </li>
                         <li class="divider"> </li>
                       <?php endif;?> 
                         <li>

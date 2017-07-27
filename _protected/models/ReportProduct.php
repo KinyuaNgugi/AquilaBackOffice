@@ -487,4 +487,27 @@ class ReportProduct
         else
             return 'No Data Exists';
     }
+    function getTotalInventory($id,$start_date,$end_date){
+        $betweenSection="";
+        if($start_date!=null && $end_date!=null){
+            $betweenSection=" and (date between ' ". $start_date ."' and '". $end_date."')";
+        }
+        $current_assets=Yii::$app->db->createCommand
+        ('select * from org_chart where main_acc_id=\'1\' and level_one_id=\'2\' and org_id="'.$id.
+            '"and level_two_id=\'34\'')
+            ->queryAll();
+
+        $items_and_balances=array();
+        foreach ($current_assets as $item){
+            $item_and_details=Yii::$app->db->createCommand
+            ('select * from accounts_postings where account_id="'.$item['id'].'"'.$betweenSection)
+                ->queryAll();
+            $balance=0;
+            foreach ($item_and_details as $item_and_detail){
+                $balance=$balance+($item_and_detail['debit']-$item_and_detail['credit']);
+            }
+            array_push($items_and_balances,array('acc'=>$item['level_three'],'bal'=>$balance));
+        }
+        return $items_and_balances;
+    }
 }

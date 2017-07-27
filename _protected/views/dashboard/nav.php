@@ -30,12 +30,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-default">
                         <li>
-                            <a href="<?=Yii::$app->homeUrl;?>accounts/index">
-                                <i class="icon-user"></i> Accounts
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?=Yii::$app->homeUrl;?>hrm/index">
+                            <a href="<?=Yii::$app->homeUrl;?>hrm/employees">
                                 <i class="icon-user"></i> HRM
                             </a>
                         </li>

@@ -47,12 +47,12 @@ use kartik\grid\GridView;
                 <!-- Tab panes -->
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="tab1">
-
+                        <?php echo ReportFinancialStatements::balanceSheet(2)?>
                     </div>
-                    <div role="tabpanel" class="tab-pane active" id="tab2">
-                        balance sheet
+                    <div role="tabpanel" class="tab-pane" id="tab2">
+                        <?php echo ReportFinancialStatements::profitAndLossStatement(2)?>
                     </div>
-                    <div role="tabpanel" class="tab-pane active" id="tab3">
+                    <div role="tabpanel" class="tab-pane" id="tab3">
                         p&l
                     </div>
                 </div>
