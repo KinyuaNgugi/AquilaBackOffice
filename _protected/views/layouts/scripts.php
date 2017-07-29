@@ -51,3 +51,5 @@
                 modules : 'security'
         });
 </script>
+
+<script src="<?=Yii::$app->homeUrl;?>themes/light/js/jquery.easing.min.js" type="text/javascript"></script>

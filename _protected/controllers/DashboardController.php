@@ -12,6 +12,7 @@ use app\models\OrgChart;
 use app\models\Stock;
 use app\models\Supplier;
 use yii;
+use yii\widgets\ActiveForm;
 
 class DashboardController extends \yii\web\Controller
 {
@@ -19,7 +20,7 @@ class DashboardController extends \yii\web\Controller
     public function beforeAction($action)
     {
         $action = Yii::$app->controller->action->id;
-        
+        $this->enableCsrfValidation = false;
         if (!parent::beforeAction($action)) {
             return false;
         }
@@ -44,16 +45,19 @@ class DashboardController extends \yii\web\Controller
             echo json_encode(count($products));
         }
     }
-    
+
     public function actionProducts()
     {
         $this->layout = 'backend';
-        
+
         //save product
         $data=Yii::$app->request->post();
         if (!empty($data))
         {
-            $model=new Stock();
+            if ($data['product_id'])
+                $model = Stock::findOne($data['product_id']);
+            else
+                $model = new Stock();
             $model->productCode=strtoupper($data['productCode']);
             $model->productName=strtoupper($data['productName']);
             $model->buyingPricePerUnit=$data['buyingPricePerUnit'];
@@ -63,10 +67,13 @@ class DashboardController extends \yii\web\Controller
             $model->reorderLevel=$data['reorderLevel'];
             $model->vat=$data['vat'];
 
-            
+
             if ($model->save())
             {
-                $chart_model=new OrgChart();
+                if ($data['product_id'])
+                    $chart_model = OrgChart::findOne(OrgChart::find()->where(['number' => $data['product_id']])->one()->id);
+                else
+                    $chart_model=new OrgChart();
                 $chart_model->main_acc_id=1;
                 $chart_model->level_one_id=2;
                 $chart_model->level_two_id=34;
@@ -89,10 +96,11 @@ class DashboardController extends \yii\web\Controller
         {
             $taxes = CountryTaxRates::find()->where(array('supermarket_applicable' => '1'))->all();
             $suppliers = Supplier::find()->all();
-
+            $products = Stock::find()->all();
             return $this->render('products', [
                 'taxes'=>$taxes,
-                'suppliers'=>$suppliers
+                'suppliers'=>$suppliers,
+                'products' => $products
             ]);
         }
     }
@@ -107,10 +115,10 @@ class DashboardController extends \yii\web\Controller
             $branches = Bankbranch::find()->where(array('bankCode'=>$bank_code))
                 ->orderBy(['name' => SORT_ASC])->all();
             $result=array();
-            
+
             //get bank id
             $bank_id = Banks::find()->where(array('code'=>$bank_code))->one()->id;
-            
+
             foreach ($branches as $branch)
                 array_push($result,array('id'=>$branch->id,'name'=>$branch->name,'bank_id'=>$bank_id));
             echo json_encode($result);
@@ -489,7 +497,7 @@ class DashboardController extends \yii\web\Controller
     }
     public function actionWelcome()
     {
-    	$this->layout = 'backend';
+        $this->layout = 'backend';
         if(Yii::$app->session->get('admin'))
         {
             $recent = Partner::find()->where(array('status' => 0))->limit(4)->all();
@@ -516,8 +524,8 @@ class DashboardController extends \yii\web\Controller
     }
     public function actionLogout()
     {
-    	Yii::$app->session->removeAll();
-    	return $this->redirect(['portal/index']);
+        Yii::$app->session->removeAll();
+        return $this->redirect(['portal/index']);
     }
 
     public function actionCommunication()
@@ -549,7 +557,7 @@ class DashboardController extends \yii\web\Controller
                 'schedules' => Paymentschedules::find()->all(),
                 'payouts' => Payouts::find()->orderBy('id desc')->where(['status' => 1])->all(),
                 'failed_payouts' => Payouts::find()->orderBy('id desc')->where(['status' => 0])->all()
-                ]);
+            ]);
         }
         else
         {
@@ -566,19 +574,19 @@ class DashboardController extends \yii\web\Controller
             }
             if($page == 'queued')
             {
-                 return $this->render('payments',[
+                return $this->render('payments',[
                     'page' => 'queued_payouts',
                     'requests' => Withdrawals::find()->where(['queued' => 1])->all()
-                    ]);
+                ]);
             }
             else
             {
                 return $this->render('payments',[
                     'page' => 'payment_transactions_schedule',
                     'payouts' => $agents
-                    ]);
+                ]);
             }
-           
+
         }
     }
     public function actionReports()
@@ -593,7 +601,7 @@ class DashboardController extends \yii\web\Controller
         return $this->render('settings',[
             'commision' => Commision::find()->all(),
             'schedules' => Paymentschedules::find()->all()
-            ]);
+        ]);
     }
     public function actionUsers()
     {
@@ -618,7 +626,7 @@ class DashboardController extends \yii\web\Controller
     {
         $this->layout = 'backend';
         $data = Yii::$app->request->post();
-        
+
         if(empty($data))
         {
             $profile = Partner::find()->where(array('id' => Yii::$app->session->get('uid')))->one();
@@ -666,11 +674,11 @@ class DashboardController extends \yii\web\Controller
             {
                 $partner->business_reg_copy = Yii::$app->session->get('b_reg');
             }
-            
+
             if($partner->load($data) && $partner->save())
             {
                 Yii::$app->session->setFlash('feedback',array('msg' => 'Profile information updated successfully','status' => 'success'));
-                if($this->profileCompleteness($partner) == 100) 
+                if($this->profileCompleteness($partner) == 100)
                 {
                     $partner->profile_complete = 1;
                     $partner->save(false);
@@ -692,7 +700,7 @@ class DashboardController extends \yii\web\Controller
         if(!$key)
         {
             $key = Partner::findOne(Yii::$app->session->get('uid'));
-        }       
+        }
         $count = 0;
         $total = 12;
         if($key->name) $count +=1;
@@ -730,11 +738,11 @@ class DashboardController extends \yii\web\Controller
         }
         return $this->render('partnerpayments',
             [
-             'commision' => Commision::compute($partner->id),
-             'c_structure' =>  $c_structure,
-             'complete_transactions' => Transactions::getTransactions('COMPLETED'),
-             'pending_transactions' => Transactions::getTransactions('PENDING'),
-             'invalid_transactions' => Transactions::getTransactions('INVALID')
+                'commision' => Commision::compute($partner->id),
+                'c_structure' =>  $c_structure,
+                'complete_transactions' => Transactions::getTransactions('COMPLETED'),
+                'pending_transactions' => Transactions::getTransactions('PENDING'),
+                'invalid_transactions' => Transactions::getTransactions('INVALID')
             ]);
     }
     public function actionPartnerpayouts()
@@ -751,12 +759,12 @@ class DashboardController extends \yii\web\Controller
         }
         return $this->render('partnerpayouts',
             [
-             'commision' => Commision::compute($partner->id),
-             'c_structure' =>  $c_structure,
-             'withdrawals' => Withdrawals::find()->where(['partner' => Yii::$app->session->get('uid')])->orderBy('id DESC')->all(),
-             'payouts' => Payouts::find()->where(['partner' => $partner->id])->all(),
-             'balance' => Payments::getBalance(Yii::$app->session->get('uid')),
-             'total_payout' => Payments::getTotal(Yii::$app->session->get('uid'))
+                'commision' => Commision::compute($partner->id),
+                'c_structure' =>  $c_structure,
+                'withdrawals' => Withdrawals::find()->where(['partner' => Yii::$app->session->get('uid')])->orderBy('id DESC')->all(),
+                'payouts' => Payouts::find()->where(['partner' => $partner->id])->all(),
+                'balance' => Payments::getBalance(Yii::$app->session->get('uid')),
+                'total_payout' => Payments::getTotal(Yii::$app->session->get('uid'))
             ]
         );
     }
@@ -784,5 +792,150 @@ class DashboardController extends \yii\web\Controller
     {
         $this->layout = 'backend';
         return $this->render('commision-calculator');
+    }
+    public function actionTest()
+    {
+        $post_data = Yii::$app->request->post();
+
+        $data = [];
+        if ($post_data)
+        {
+            $stocks = Stock::find()->all();
+
+            $draw = $post_data["draw"];//counter used by DataTables to ensure that the Ajax returns from server-side processing requests are drawn in sequence by DataTables
+            $orderByColumnIndex  = $post_data['order'][0]['column'];// index of the sorting column (0 index based - i.e. 0 is the first record)
+            $orderBy = $post_data['columns'][$orderByColumnIndex]['data'];//Get name of the sorting column from its index
+            $orderType = $post_data['order'][0]['dir']; // ASC or DESC
+            $start  = $post_data["start"];//Paging first record indicator.
+            $length = $post_data['length'];//Number of records that the table can display in the current draw
+            /* END of POST variables */
+
+            $recordsTotal = count($stocks);
+
+            /* SEARCH CASE : Filtered data */
+            if(!empty($post_data['search']['value'])){
+
+                /* WHERE Clause for searching */
+                for($i=0; $i < count($post_data['columns'])-1; $i++){
+                    $column = $post_data['columns'][$i]['data'];//we get the name of each column using its index from POST request
+                    $where [] = "$column like '%".$post_data['search']['value']."%'";
+                }
+                $where = "WHERE ".implode(" OR " , $where);// id like '%searchValue%' or name like '%searchValue%' ....
+                /* End WHERE */
+
+                $sql = sprintf("SELECT * FROM stock %s", $where);//Search query without limit clause (No pagination)
+
+                $recordsFiltered = count(Stock::findBySql($sql)->all());//Count of search result
+
+                /* SQL Query for search with limit and orderBy clauses*/
+                $sql = sprintf("SELECT * FROM stock %s ORDER BY %s %s limit %d , %d ", $where ,$orderBy, $orderType ,$start,$length  );
+                $stocks = Stock::findBySql($sql)->all();
+            }
+            /* END SEARCH */
+            else {
+                $sql = sprintf("SELECT * FROM stock ORDER BY %s %s limit %d , %d " ,$orderBy,$orderType ,$start , $length);
+                $stocks = Stock::findBySql($sql)->all();
+
+                $recordsFiltered = $recordsTotal;
+            }
+            foreach ( $stocks as $stock)
+            {
+                $id = $stock->stockId;
+                $vat = CountryTaxRates::findOne($stock->vat)->tax_rate_name;
+
+                $tax_options= "<option value=\"$stock->vat\">$vat</option>";
+                foreach (CountryTaxRates::find()->where(array('supermarket_applicable' => '1'))->all() as $tax){
+                    if ($tax->id != $stock->vat){
+                        $vat = CountryTaxRates::findOne($tax->id)->tax_rate_name;
+                        $tax_options.= "<option value=\"$tax->id\">$vat</option>";
+                    }
+                }
+
+                try{
+                    $supplier_name = Supplier::findOne($stock->supplierId)->supplierName;
+                }
+                catch (\Exception $ex){
+                    $supplier_name = "Undefined";
+                }
+                $supplier_options = "<option value=\"$stock->supplierId\">$supplier_name</option>";
+                foreach (Supplier::find()->all() as $supplier){
+                    $supplier_name = Supplier::findOne($supplier->supplierId)->supplierName;
+                    if ($supplier->supplierId != $stock->supplierId){
+                        $supplier_options .= "<option value=\"$supplier->supplierId\">$supplier_name</option>";
+                    }
+                }
+                array_push($data, ["productCode"=>$stock->productCode,
+                    "productName" => $stock->productName,
+                    "buyingPricePerUnit" => $stock->buyingPricePerUnit,
+                    "sellingPricePerUnit" =>$stock->sellingPricePerUnit,
+                    "btn" => "<a data-toggle=\"modal\" href=\"#active-modal-$id\" href=\"#\"><button class=\"btn dark\">Edit</button></a>
+                                <div class=\"modal fade\" id=\"active-modal-$stock->stockId\">
+            <div class=\"modal-dialog modal-lger\">
+                <div class=\"modal-content\">
+                    <div class=\"modal-header\">
+                        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"></button>
+                        <h4 class=\"modal-title\"><b>$stock->productName</b></h4>
+                    </div>
+                    <div class=\"modal-body\">
+                    <form method=\"post\">
+                        <input name=\"product_id\" type=\"hidden\" value=\"$stock->stockId\">
+                        <div class=\"form-group\">
+                            <label for=\"product-code\">Product Code:</label>
+                            <input type=\"text\" class=\"form-control\" value=\"$stock->productCode\" name=\"productCode\" id=\"product-code\" required >
+                        </div>
+                        <span class=\"text-info\" id=\"code-error\"></span>
+                        <div class=\"form-group\">
+                            <label for=\"product-name\">Product Name:</label>
+                            <input type=\"text\" class=\"form-control\" value=\"$stock->productName\" name=\"productName\" id=\"product-name\" required>
+                        </div>
+                       <div class=\"form-group\">
+                            <label for=\"vat\">VAT:</label>
+                            <select class=\"form-control\" name=\"vat\"  id=\"vat\" required>
+                                $tax_options
+                            </select>
+                        </div>
+                        <div class=\"form-group\">
+                            <label for=\"buyingPrice\">Buying Price:</label>
+                            <input type=\"text\" class=\"form-control\" value=\"$stock->buyingPricePerUnit\" name=\"buyingPricePerUnit\" id=\"buying-price\" required>
+                        </div>
+                        <div class=\"form-group\">
+                            <label for=\"sellingPrice\">Selling Price:</label>
+                            <input type=\"text\"  class=\"form-control\" value=\"$stock->sellingPricePerUnit\" name=\"sellingPricePerUnit\" id=\"selling-price\" required>
+                        </div>
+                        <div class=\"form-group\">
+                           <label for=\"packing\">Packing Units:</label>
+                           <input type=\"text\" value=\"$stock->packing\" class=\"form-control\" name=\"packing\" id=\"packing\">
+                        </div>
+                        <div class=\"form-group\">
+                            <label for=\"reorderlevel\">Reorder Level:</label><span class=\"text-warning\" id=\"unitsToPack\"></span>
+                            <input type=\"text\" value=\"$stock->reorderLevel\" class=\"form-control\"  name=\"reorderLevel\" id=\"reorderLevel\" required>
+                         </div>
+                        <div class=\"form-group\">
+                             <label for=\"supplier\">Supplier:</label>
+                             <select class=\"form-control\" name=\"supplierId\"  id=\"supplier\" required>
+                                   $supplier_options
+                              </select>
+                        </div>
+                        <hr class=\"divider\">
+                        <div class=\"form-group\">
+                             <center><button type=\"submit\" class=\"btn btn-success\">Edit</button></center>
+                         </div>
+                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>"]);
+            }
+
+            /* Response to client before JSON encoding */
+            $response = array(
+                "draw" => intval($draw),
+                "recordsTotal" => $recordsTotal,
+                "recordsFiltered" => $recordsFiltered,
+                "data" => $data
+            );
+
+            echo json_encode($response);
+        }
     }
 }

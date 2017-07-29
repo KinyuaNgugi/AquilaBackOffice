@@ -106,9 +106,29 @@ use yii\grid\ActionColumn;
                             <span class="clearfix"></span>
                         </div>
                         <hr class="divider">
+                        <table id="all-products-table" class="display" cellspacing="0" width="100%">
+                            <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Buying Price </th>
+                                <th>Selling Price</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Buying Price </th>
+                                <th>Selling Price</th>
+                                <th>Action</th>
+                            </tr>
+                            </tfoot>
+                        </table>
                         <?php ActiveForm::end();?>
                         <?php
-                        $searchModel = new Stock();
+                        /*$searchModel = new Stock();
                         $dataProvider = $searchModel->search(Yii::$app->request->get(),"all");
 
                         echo GridView::widget([
@@ -144,7 +164,7 @@ use yii\grid\ActionColumn;
                                 ]
                         ]
                         ]);
-                        ?>
+                        */?>
                     </div>
                     <!--<div role="tabpanel" class="tab-pane" id="tab3">
                         <?php /*ActiveForm::begin();*/?>
@@ -278,4 +298,64 @@ use yii\grid\ActionColumn;
         <div class="clearfix"></div>
     </div>
     <!-- END CONTENT BODY -->
+    <?php if(!empty($products)): foreach($products as $key):?>
+        <!--<div class="modal fade" id="active-modal-<?/*=$key->stockId;*/?>">
+            <div class="modal-dialog modal-lger">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                        <h4 class="modal-title"><b><?/*=$key->productName;*/?>(<?/*=$key->productCode*/?>)</b></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="product-code">Product Code:</label>
+                            <input type="text" class="form-control" value="<?/*=$key->productCode*/?>" name="productCode" id="product-code" required >
+                        </div>
+                        <span class="text-info" id="code-error"></span>
+                        <div class="form-group">
+                            <label for="product-name">Product Name:</label>
+                            <input type="text" class="form-control" value="<?/*=$key->productName*/?>" name="productName" id="product-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="vat">VAT:</label>
+                            <select class="form-control" name="vat"  id="vat" required>
+                                <option value="<?/*=$key->vat*/?>"><?/*=\app\models\CountryTaxRates::findOne($key->vat)->tax_rate_name*/?></option>
+                                <?php /*if(!empty($taxes)): foreach($taxes as $tax):if ($tax->id != $key->vat):*/?>
+                                    <option value="<?/*=$tax->id*/?>"><?/*=$tax->tax_rate_name*/?></option>
+                                <?php /*endif;endforeach; endif;*/?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="buyingPrice">Buying Price:</label>
+                            <input type="text" class="form-control" value="<?/*=$key->buyingPricePerUnit*/?>" name="buyingPricePerUnit" id="buying-price" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sellingPrice">Selling Price:</label>
+                            <input type="text"  class="form-control" value="<?/*=$key->sellingPricePerUnit*/?>" name="sellingPricePerUnit" id="selling-price" required>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>-->
+    <?php endforeach;endif;?>
 </div>
+<script  type="text/javascript">
+    $(document).ready(function() {
+        $('#all-products-table').DataTable( {
+            "columns": [
+                {"data": "productCode"},
+                {"data": "productName"},
+                {"data": "buyingPricePerUnit"},
+                {"data": "sellingPricePerUnit"},
+                {"data": "btn"}
+            ],
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: 'test',
+                type: 'POST'
+            }
+        } );
+    } );
+</script>
